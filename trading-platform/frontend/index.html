@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Trading Platform</title>
+  <title>TradeAI v2</title>
   <link rel="stylesheet" href="/styles.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
@@ -16,44 +16,41 @@
         <span class="logo-text">TradeAI</span>
         <span id="mode-badge" class="badge demo">DEMO</span>
       </div>
+
       <ul class="nav-links">
-        <li><a href="#" class="nav-link active" data-page="dashboard">
-          <span class="nav-icon">📊</span> Dashboard
-        </a></li>
-        <li><a href="#" class="nav-link" data-page="portfolio">
-          <span class="nav-icon">💼</span> Portfolio
-        </a></li>
-        <li><a href="#" class="nav-link" data-page="research">
-          <span class="nav-icon">🔬</span> AI Research
-        </a></li>
-        <li><a href="#" class="nav-link" data-page="trade">
-          <span class="nav-icon">⚡</span> Trade
-        </a></li>
-        <li><a href="#" class="nav-link" data-page="watchlist">
-          <span class="nav-icon">👁</span> Watchlist
-        </a></li>
-        <li><a href="#" class="nav-link" data-page="history">
-          <span class="nav-icon">📋</span> History
-        </a></li>
-        <li><a href="#" class="nav-link" data-page="settings">
-          <span class="nav-icon">⚙️</span> Settings
-        </a></li>
+        <li><a class="nav-link active" data-page="dashboard"><span class="nav-icon">📊</span> Dashboard</a></li>
+        <li><a class="nav-link" data-page="portfolio"><span class="nav-icon">💼</span> Portfolio</a></li>
+        <li><a class="nav-link" data-page="research"><span class="nav-icon">🔬</span> AI Research</a></li>
+        <li><a class="nav-link" data-page="trade"><span class="nav-icon">⚡</span> Trade</a></li>
+        <li><a class="nav-link" data-page="watchlist"><span class="nav-icon">👁</span> Watchlist</a></li>
+        <li><a class="nav-link" data-page="history"><span class="nav-icon">📋</span> History</a></li>
+        <li><a class="nav-link" data-page="performance"><span class="nav-icon">📈</span> Performance</a></li>
+        <li><a class="nav-link" data-page="alerts"><span class="nav-icon">🔔</span> Alerts <span id="alerts-badge" class="nav-badge hidden">0</span></a></li>
+        <li><a class="nav-link" data-page="chat"><span class="nav-icon">💬</span> AI Chat</a></li>
+        <li><a class="nav-link" data-page="settings"><span class="nav-icon">⚙️</span> Settings</a></li>
       </ul>
-      <div class="bot-status-mini" id="bot-status-mini">
-        <div class="status-dot" id="status-dot"></div>
-        <span id="status-text">Bot Idle</span>
+
+      <div class="bot-controls">
+        <div class="bot-status-mini">
+          <div class="status-dot" id="status-dot"></div>
+          <span id="status-text">Bot Idle</span>
+        </div>
+        <div class="bot-btns">
+          <button class="bot-btn" id="pause-btn" onclick="pauseBot()" title="Pause bot">⏸</button>
+          <button class="bot-btn" id="resume-btn" onclick="resumeBot()" title="Resume bot">▶</button>
+          <button class="bot-btn danger" onclick="confirmEmergencyExit()" title="Emergency exit all">🚨</button>
+        </div>
       </div>
     </nav>
 
     <!-- Main Content -->
     <main class="main-content">
-      <!-- Dashboard -->
+
+      <!-- DASHBOARD -->
       <section class="page active" id="page-dashboard">
         <div class="page-header">
           <h1>Dashboard</h1>
-          <button class="btn btn-primary" id="run-analysis-btn" onclick="triggerAnalysis()">
-            ▶ Run AI Analysis
-          </button>
+          <button class="btn btn-primary" onclick="triggerAnalysis()">▶ Run AI Analysis</button>
         </div>
 
         <div class="stats-grid">
@@ -82,17 +79,34 @@
         <div class="grid-2">
           <div class="card">
             <div class="card-header">
-              <h2>Portfolio Value (24h)</h2>
+              <h2>Portfolio Value</h2>
+              <div style="display:flex;gap:6px">
+                <button class="pill-btn active" onclick="setChartPeriod('1d',this)">1D</button>
+                <button class="pill-btn" onclick="setChartPeriod('1w',this)">1W</button>
+                <button class="pill-btn" onclick="setChartPeriod('1m',this)">1M</button>
+              </div>
             </div>
             <canvas id="portfolio-chart" height="200"></canvas>
           </div>
 
           <div class="card">
-            <div class="card-header">
-              <h2>Portfolio Health</h2>
-            </div>
+            <div class="card-header"><h2>Allocation</h2></div>
+            <canvas id="allocation-chart" height="200"></canvas>
+            <div id="allocation-legend" class="alloc-legend"></div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header"><h2>Portfolio Health</h2></div>
             <div id="portfolio-review-content">
               <button class="btn btn-secondary" onclick="loadPortfolioReview()">Get AI Review</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h2>Morning Brief</h2></div>
+            <div id="brief-content">
+              <button class="btn btn-secondary" onclick="loadBrief()">Generate Brief</button>
             </div>
           </div>
         </div>
@@ -100,7 +114,13 @@
         <div class="card">
           <div class="card-header">
             <h2>Bot Activity Log</h2>
-            <span class="refresh-link" onclick="loadStatus()">↻ Refresh</span>
+            <div style="display:flex;align-items:center;gap:12px">
+              <span class="refresh-link" onclick="loadStatus()">↻ Refresh</span>
+              <label class="toggle-label">
+                <input type="checkbox" id="auto-refresh-toggle" onchange="toggleAutoRefresh(this.checked)" checked>
+                Auto-refresh
+              </label>
+            </div>
           </div>
           <div class="log-container" id="activity-log">
             <div class="log-empty">No activity yet. Run an analysis to get started.</div>
@@ -108,24 +128,19 @@
         </div>
       </section>
 
-      <!-- Portfolio -->
+      <!-- PORTFOLIO -->
       <section class="page" id="page-portfolio">
         <div class="page-header">
           <h1>Portfolio</h1>
           <button class="btn btn-secondary" onclick="loadPortfolio()">↻ Refresh</button>
         </div>
+        <div class="stats-grid" id="portfolio-stats" style="margin-bottom:20px"></div>
         <div class="card">
-          <table class="data-table" id="portfolio-table">
+          <table class="data-table">
             <thead>
               <tr>
-                <th>Ticker</th>
-                <th>Qty</th>
-                <th>Avg Price</th>
-                <th>Current Price</th>
-                <th>Value</th>
-                <th>P&L</th>
-                <th>P&L %</th>
-                <th>Actions</th>
+                <th>Ticker</th><th>Qty</th><th>Avg Price</th><th>Current</th>
+                <th>Value</th><th>P&amp;L</th><th>P&amp;L %</th><th>Actions</th>
               </tr>
             </thead>
             <tbody id="portfolio-tbody">
@@ -135,12 +150,9 @@
         </div>
       </section>
 
-      <!-- AI Research -->
+      <!-- AI RESEARCH -->
       <section class="page" id="page-research">
-        <div class="page-header">
-          <h1>AI Research</h1>
-        </div>
-
+        <div class="page-header"><h1>AI Research</h1></div>
         <div class="card search-card">
           <div class="search-row">
             <input type="text" id="research-ticker" class="input" placeholder="Enter ticker (e.g. NVDA)" />
@@ -159,9 +171,15 @@
               <div id="analysis-market-data"></div>
             </div>
           </div>
-          <div class="card">
-            <div class="card-header"><h2>Signal Breakdown</h2></div>
-            <div id="analysis-signals"></div>
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-header"><h2>Technical Signals</h2></div>
+              <div id="analysis-signals"></div>
+            </div>
+            <div class="card">
+              <div class="card-header"><h2>Latest News</h2></div>
+              <div id="analysis-news"></div>
+            </div>
           </div>
         </div>
 
@@ -172,21 +190,19 @@
           </div>
           <table class="data-table">
             <thead>
-              <tr><th>Time</th><th>Ticker</th><th>Action</th><th>Confidence</th><th>Reasoning</th></tr>
+              <tr><th>Time</th><th>Ticker</th><th>Action</th><th>Confidence</th><th>News</th><th>Reasoning</th></tr>
             </thead>
             <tbody id="analyses-tbody">
-              <tr><td colspan="5" class="empty-cell">No analyses yet</td></tr>
+              <tr><td colspan="6" class="empty-cell">No analyses yet</td></tr>
             </tbody>
           </table>
         </div>
       </section>
 
-      <!-- Trade -->
+      <!-- TRADE -->
       <section class="page" id="page-trade">
-        <div class="page-header">
-          <h1>Manual Trade</h1>
-        </div>
-        <div class="card" style="max-width: 500px;">
+        <div class="page-header"><h1>Manual Trade</h1></div>
+        <div class="card" style="max-width:500px">
           <div class="form-group">
             <label>Ticker</label>
             <input type="text" id="trade-ticker" class="input" placeholder="e.g. AAPL" />
@@ -217,7 +233,7 @@
           <button class="btn btn-primary btn-full" onclick="placeTrade()">Place Order</button>
         </div>
 
-        <div class="card" style="margin-top: 24px;">
+        <div class="card" style="margin-top:24px">
           <div class="card-header">
             <h2>Open Orders</h2>
             <span class="refresh-link" onclick="loadOpenOrders()">↻ Refresh</span>
@@ -233,30 +249,28 @@
         </div>
       </section>
 
-      <!-- Watchlist -->
+      <!-- WATCHLIST -->
       <section class="page" id="page-watchlist">
-        <div class="page-header">
-          <h1>Watchlist</h1>
-        </div>
-        <div class="card" style="max-width: 400px; margin-bottom: 24px;">
+        <div class="page-header"><h1>Watchlist</h1></div>
+        <div class="card" style="max-width:400px;margin-bottom:24px">
           <div class="search-row">
             <input type="text" id="add-ticker-input" class="input" placeholder="Add ticker..." />
             <button class="btn btn-primary" onclick="addToWatchlist()">+ Add</button>
           </div>
         </div>
         <div class="card">
-          <table class="data-table" id="watchlist-table">
+          <table class="data-table">
             <thead>
-              <tr><th>Ticker</th><th>Price</th><th>1D%</th><th>RSI</th><th>MACD</th><th>Actions</th></tr>
+              <tr><th>Ticker</th><th>Price</th><th>1D%</th><th>RSI (1d/1h)</th><th>MACD</th><th>ADX</th><th>Pattern</th><th>Actions</th></tr>
             </thead>
             <tbody id="watchlist-tbody">
-              <tr><td colspan="6" class="empty-cell">Loading...</td></tr>
+              <tr><td colspan="8" class="empty-cell">Loading...</td></tr>
             </tbody>
           </table>
         </div>
       </section>
 
-      <!-- History -->
+      <!-- HISTORY -->
       <section class="page" id="page-history">
         <div class="page-header">
           <h1>Trade History</h1>
@@ -265,33 +279,132 @@
         <div class="card">
           <table class="data-table">
             <thead>
-              <tr><th>Time</th><th>Ticker</th><th>Action</th><th>Qty</th><th>Price</th><th>Confidence</th><th>Reasoning</th></tr>
+              <tr><th>Time</th><th>Ticker</th><th>Action</th><th>Qty</th><th>Price</th><th>Strategy</th><th>Confidence</th><th>Reasoning</th></tr>
             </thead>
             <tbody id="trades-tbody">
-              <tr><td colspan="7" class="empty-cell">No trades yet</td></tr>
+              <tr><td colspan="8" class="empty-cell">No trades yet</td></tr>
             </tbody>
           </table>
         </div>
       </section>
 
-      <!-- Settings -->
-      <section class="page" id="page-settings">
+      <!-- PERFORMANCE -->
+      <section class="page" id="page-performance">
         <div class="page-header">
-          <h1>Settings</h1>
+          <h1>Performance</h1>
+          <button class="btn btn-secondary" onclick="loadPerformance()">↻ Refresh</button>
         </div>
-        <div class="card" id="settings-content">
-          <div class="settings-info">
-            <p>Configure your settings in the <code>.env</code> file and restart the server.</p>
+        <div class="stats-grid" id="perf-stats-grid"></div>
+        <div class="grid-2" style="margin-top:20px">
+          <div class="card">
+            <div class="card-header"><h2>Win Rate</h2></div>
+            <div id="win-rate-display" style="padding:20px 0"></div>
           </div>
-          <table class="settings-table" id="settings-table">
+          <div class="card">
+            <div class="card-header"><h2>P&amp;L Breakdown</h2></div>
+            <div id="pnl-breakdown" style="padding:10px 0"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h2>Portfolio Growth</h2></div>
+          <canvas id="growth-chart" height="180"></canvas>
+        </div>
+      </section>
+
+      <!-- ALERTS -->
+      <section class="page" id="page-alerts">
+        <div class="page-header">
+          <h1>Price Alerts</h1>
+          <button class="btn btn-secondary" onclick="loadAlerts()">↻ Refresh</button>
+        </div>
+        <div class="card" style="max-width:520px;margin-bottom:24px">
+          <div class="form-group">
+            <label>Ticker</label>
+            <input type="text" id="alert-ticker" class="input" placeholder="e.g. AAPL" />
+          </div>
+          <div class="form-group">
+            <label>Alert when price is</label>
+            <select class="input" id="alert-direction">
+              <option value="above">Above</option>
+              <option value="below">Below</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Target Price ($)</label>
+            <input type="number" id="alert-price" class="input" placeholder="0.00" step="0.01" />
+          </div>
+          <div class="form-group">
+            <label>Note (optional)</label>
+            <input type="text" id="alert-note" class="input" placeholder="e.g. Support level" />
+          </div>
+          <button class="btn btn-primary btn-full" onclick="createAlert()">+ Set Alert</button>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h2>Active Alerts</h2>
+            <label style="font-size:13px;color:var(--text-muted)">
+              <input type="checkbox" id="show-triggered" onchange="loadAlerts()"> Show triggered
+            </label>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr><th>Ticker</th><th>Direction</th><th>Target</th><th>Note</th><th>Status</th><th>Created</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="alerts-tbody">
+              <tr><td colspan="7" class="empty-cell">No alerts set</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- AI CHAT -->
+      <section class="page" id="page-chat">
+        <div class="page-header">
+          <h1>AI Chat</h1>
+          <button class="btn btn-secondary" onclick="clearChat()">Clear chat</button>
+        </div>
+        <div class="chat-container">
+          <div class="chat-messages" id="chat-messages">
+            <div class="chat-bubble assistant">
+              Hello! I'm your AI trading assistant. I have full context of your portfolio and market data. Ask me anything — about specific stocks, your positions, strategy, risk, or the market in general.
+            </div>
+          </div>
+          <div class="chat-input-row">
+            <input type="text" id="chat-input" class="input" placeholder="Ask anything about your portfolio or the market..."
+                   onkeydown="if(event.key==='Enter')sendChat()" />
+            <button class="btn btn-primary" onclick="sendChat()">Send</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SETTINGS -->
+      <section class="page" id="page-settings">
+        <div class="page-header"><h1>Settings</h1></div>
+        <div class="card">
+          <div class="settings-info">
+            <p>Edit the <code>.env</code> file and restart the server to change settings.</p>
+          </div>
+          <table class="settings-table">
             <tbody id="settings-tbody"></tbody>
           </table>
         </div>
       </section>
+
     </main>
   </div>
 
   <div id="toast" class="toast hidden"></div>
+  <div id="confirm-modal" class="modal hidden">
+    <div class="modal-box">
+      <h3 id="modal-title">Confirm</h3>
+      <p id="modal-body"></p>
+      <div class="modal-btns">
+        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-danger" id="modal-confirm-btn">Confirm</button>
+      </div>
+    </div>
+  </div>
+
   <script src="/app.js"></script>
 </body>
 </html>
