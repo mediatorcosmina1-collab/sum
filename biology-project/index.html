@@ -3,1184 +3,935 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Locomotia Zburatoarelor — Gligor Ștefan Albert · Clasa 7D</title>
+  <title>Locomoția în Mediul Terestru — Biologie</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Exo:ital,wght@0,200;0,300;0,400;0,600;0,700;0,900;1,300&family=Exo+2:wght@300;400;600;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Exo:wght@200;300;400;600;700;900&family=Exo+2:wght@300;400;600;800&display=swap" rel="stylesheet" />
   <script type="importmap">
     { "imports": { "three": "https://unpkg.com/three@0.164.1/build/three.module.js",
                    "three/addons/": "https://unpkg.com/three@0.164.1/examples/jsm/" } }
   </script>
   <style>
-    /* ── Reset & Base ─────────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg:          #04050f;
-      --bg2:         #080c1e;
-      --indigo:      #4f46e5;
-      --indigo-lt:   #818cf8;
-      --cyan:        #06b6d4;
-      --teal:        #2dd4bf;
-      --amber:       #fbbf24;
-      --white:       #f0f4ff;
-      --muted:       #8892b8;
-      --glass-bg:    rgba(15,20,60,0.55);
-      --glass-bd:    rgba(129,140,248,0.18);
-      --glow-ind:    0 0 32px rgba(79,70,229,.45);
-      --glow-cyan:   0 0 32px rgba(6,182,212,.35);
-      --font:        'Exo 2', 'Exo', sans-serif;
-      --radius:      14px;
-      --t:           300ms ease-out;
+      --bg:         #04090a;
+      --bg2:        #071210;
+      --green:      #00e676;
+      --green-lt:   #69f0ae;
+      --lime:       #ccff90;
+      --amber:      #ffab40;
+      --teal:       #1de9b6;
+      --white:      #edfff4;
+      --muted:      #5a8a6a;
+      --glass-bg:   rgba(7, 20, 13, 0.62);
+      --glass-bd:   rgba(105, 240, 174, 0.14);
+      --glow-g:     0 0 30px rgba(0,230,118,.4);
+      --glow-t:     0 0 30px rgba(29,233,182,.35);
+      --font:       'Exo 2', 'Exo', sans-serif;
+      --r:          14px;
+      --t:          280ms ease-out;
     }
     html { scroll-behavior: smooth; }
-    body {
-      font-family: var(--font);
-      background: var(--bg);
-      color: var(--white);
-      overflow-x: hidden;
-      line-height: 1.65;
-    }
-    ::selection { background: rgba(79,70,229,.4); color: #fff; }
+    body { font-family: var(--font); background: var(--bg); color: var(--white); overflow-x: hidden; line-height: 1.65; }
+    ::selection { background: rgba(0,230,118,.35); color: #fff; }
 
-    /* ── Canvas background ─────────────────────────────────── */
-    #hero-canvas {
-      position: fixed;
-      inset: 0;
-      width: 100%; height: 100%;
-      z-index: 0;
-      pointer-events: none;
-    }
+    /* ── canvas bg ── */
+    #hero-canvas { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
 
-    /* ── NAV ────────────────────────────────────────────────── */
+    /* ── nav ── */
     nav {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      z-index: 100;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 14px 32px;
-      background: rgba(4,5,15,.72);
-      backdrop-filter: blur(18px);
-      border-bottom: 1px solid rgba(129,140,248,.12);
-      transition: background var(--t);
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 32px;
+      background: rgba(4,9,10,.82); backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(105,240,174,.09);
     }
-    .nav-logo {
-      font-size: .85rem;
-      font-weight: 600;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      color: var(--indigo-lt);
-    }
-    .nav-links {
-      display: flex;
-      gap: 28px;
-      list-style: none;
-    }
-    .nav-links a {
-      font-size: .82rem;
-      font-weight: 500;
-      letter-spacing: .05em;
-      text-transform: uppercase;
-      color: var(--muted);
-      text-decoration: none;
-      transition: color var(--t);
-    }
-    .nav-links a:hover { color: var(--cyan); }
+    .nav-logo { font-size: .82rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--green-lt); }
+    .nav-links { display: flex; gap: 26px; list-style: none; }
+    .nav-links a { font-size: .8rem; font-weight: 500; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); text-decoration: none; transition: color var(--t); }
+    .nav-links a:hover { color: var(--green); }
 
-    /* ── MAIN CONTENT LAYER ──────────────────────────────────── */
+    /* ── main ── */
     main { position: relative; z-index: 1; }
 
-    /* ── HERO ───────────────────────────────────────────────── */
+    /* ── hero ── */
     #hero {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 120px 24px 60px;
+      min-height: 100vh; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center; padding: 120px 24px 60px;
     }
     .hero-eyebrow {
-      font-size: .78rem;
-      font-weight: 600;
-      letter-spacing: .2em;
-      text-transform: uppercase;
-      color: var(--cyan);
-      margin-bottom: 20px;
-      opacity: 0;
-      animation: fadeUp .7s .2s ease-out forwards;
+      font-size: .76rem; font-weight: 700; letter-spacing: .22em; text-transform: uppercase;
+      color: var(--teal); margin-bottom: 20px;
+      opacity: 0; animation: fadeUp .7s .2s ease-out forwards;
     }
     .hero-title {
-      font-size: clamp(2.8rem, 7vw, 6.5rem);
-      font-weight: 900;
-      line-height: 1.06;
-      letter-spacing: -.02em;
-      background: linear-gradient(135deg, #ffffff 20%, var(--indigo-lt) 55%, var(--cyan) 90%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      opacity: 0;
-      animation: fadeUp .8s .4s ease-out forwards;
+      font-size: clamp(2.6rem, 7vw, 6.2rem); font-weight: 900;
+      line-height: 1.06; letter-spacing: -.02em;
+      background: linear-gradient(140deg, #fff 15%, var(--green-lt) 50%, var(--lime) 88%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      opacity: 0; animation: fadeUp .8s .4s ease-out forwards;
     }
     .hero-sub {
-      margin-top: 18px;
-      font-size: clamp(1rem, 2vw, 1.25rem);
-      font-weight: 300;
-      color: var(--muted);
-      max-width: 580px;
-      opacity: 0;
-      animation: fadeUp .8s .6s ease-out forwards;
+      margin-top: 18px; font-size: clamp(.95rem, 2vw, 1.2rem); font-weight: 300;
+      color: var(--muted); max-width: 600px;
+      opacity: 0; animation: fadeUp .8s .65s ease-out forwards;
     }
     .hero-badges {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      justify-content: center;
-      margin-top: 32px;
-      opacity: 0;
-      animation: fadeUp .8s .8s ease-out forwards;
+      display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;
+      margin-top: 30px; opacity: 0; animation: fadeUp .8s .85s ease-out forwards;
     }
     .badge {
-      padding: 6px 18px;
-      border-radius: 999px;
-      font-size: .78rem;
-      font-weight: 600;
-      letter-spacing: .06em;
-      text-transform: uppercase;
-      border: 1px solid;
+      padding: 5px 16px; border-radius: 999px; font-size: .74rem; font-weight: 700;
+      letter-spacing: .07em; text-transform: uppercase; border: 1px solid;
     }
-    .badge-indigo { border-color: var(--indigo); color: var(--indigo-lt); background: rgba(79,70,229,.12); }
-    .badge-cyan   { border-color: var(--cyan);   color: var(--cyan);       background: rgba(6,182,212,.10); }
-    .badge-teal   { border-color: var(--teal);   color: var(--teal);       background: rgba(45,212,191,.10); }
-
+    .b-g { border-color: var(--green);    color: var(--green-lt); background: rgba(0,230,118,.10); }
+    .b-t { border-color: var(--teal);     color: var(--teal);     background: rgba(29,233,182,.10); }
+    .b-a { border-color: var(--amber);    color: var(--amber);    background: rgba(255,171,64,.10); }
+    .b-l { border-color: var(--lime);     color: var(--lime);     background: rgba(204,255,144,.10); }
     .hero-scroll {
-      margin-top: 56px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      opacity: 0;
-      animation: fadeUp .8s 1.1s ease-out forwards;
+      margin-top: 52px; display: flex; flex-direction: column; align-items: center; gap: 8px;
+      opacity: 0; animation: fadeUp .8s 1.1s ease-out forwards;
     }
-    .hero-scroll span { font-size: .72rem; letter-spacing: .14em; color: var(--muted); text-transform: uppercase; }
-    .scroll-line {
-      width: 1px;
-      height: 48px;
-      background: linear-gradient(to bottom, var(--indigo-lt), transparent);
-      animation: scrollPulse 2s ease-in-out infinite;
-    }
+    .hero-scroll span { font-size: .7rem; letter-spacing: .16em; color: var(--muted); text-transform: uppercase; }
+    .scroll-line { width: 1px; height: 46px; background: linear-gradient(to bottom, var(--green-lt), transparent); animation: pulse 2s ease-in-out infinite; }
 
-    /* ── SECTION WRAPPER ─────────────────────────────────────── */
-    section {
-      position: relative;
-      padding: 100px 24px;
-      max-width: 1280px;
-      margin: 0 auto;
-    }
-    .section-label {
-      font-size: .75rem;
-      font-weight: 700;
-      letter-spacing: .22em;
-      text-transform: uppercase;
-      color: var(--cyan);
-      margin-bottom: 12px;
-    }
+    /* ── section ── */
+    section { position: relative; padding: 96px 24px; max-width: 1260px; margin: 0 auto; }
+    .section-label { font-size: .73rem; font-weight: 700; letter-spacing: .22em; text-transform: uppercase; color: var(--green); margin-bottom: 10px; }
     .section-title {
-      font-size: clamp(2rem, 4vw, 3.2rem);
-      font-weight: 800;
-      line-height: 1.15;
-      letter-spacing: -.02em;
-      background: linear-gradient(120deg, var(--white) 40%, var(--indigo-lt));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin-bottom: 20px;
+      font-size: clamp(1.9rem, 3.8vw, 3rem); font-weight: 800; line-height: 1.15; letter-spacing: -.02em;
+      background: linear-gradient(120deg, var(--white) 40%, var(--green-lt));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      margin-bottom: 18px;
     }
-    .section-body {
-      font-size: 1.05rem;
-      color: var(--muted);
-      max-width: 680px;
-      line-height: 1.75;
-    }
+    .section-body { font-size: 1.02rem; color: var(--muted); max-width: 680px; line-height: 1.78; }
+    .divider { width: 100%; height: 1px; background: linear-gradient(90deg, transparent, var(--glass-bd), transparent); }
 
-    /* ── DIVIDER ─────────────────────────────────────────────── */
-    .divider {
-      width: 100%;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, var(--glass-bd), transparent);
-      margin: 0 auto;
-    }
-
-    /* ── STATS ROW ────────────────────────────────────────────── */
-    .stats-row {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 20px;
-      margin-top: 60px;
-    }
+    /* ── stats ── */
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 18px; margin-top: 56px; }
     .stat-card {
-      background: var(--glass-bg);
-      border: 1px solid var(--glass-bd);
-      border-radius: var(--radius);
-      padding: 28px 20px;
-      text-align: center;
-      backdrop-filter: blur(12px);
+      background: var(--glass-bg); border: 1px solid var(--glass-bd); border-radius: var(--r);
+      padding: 26px 18px; text-align: center; backdrop-filter: blur(12px);
       transition: transform var(--t), box-shadow var(--t), border-color var(--t);
     }
-    .stat-card:hover {
-      transform: translateY(-5px);
-      box-shadow: var(--glow-ind);
-      border-color: var(--indigo);
-    }
+    .stat-card:hover { transform: translateY(-5px); box-shadow: var(--glow-g); border-color: var(--green); }
     .stat-num {
-      font-size: 2.4rem;
-      font-weight: 900;
-      background: linear-gradient(135deg, var(--indigo-lt), var(--cyan));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      font-size: 2.3rem; font-weight: 900;
+      background: linear-gradient(135deg, var(--green-lt), var(--lime));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     }
-    .stat-label {
-      font-size: .8rem;
-      color: var(--muted);
-      margin-top: 6px;
-      letter-spacing: .06em;
-    }
+    .stat-label { font-size: .78rem; color: var(--muted); margin-top: 5px; letter-spacing: .05em; }
 
-    /* ── ANIMAL CARDS ────────────────────────────────────────── */
-    .animal-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 24px;
-      margin-top: 60px;
-    }
-    .animal-card {
-      background: var(--glass-bg);
-      border: 1px solid var(--glass-bd);
-      border-radius: 20px;
-      padding: 36px 28px;
+    /* ── locomotion cards ── */
+    .loco-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(285px, 1fr)); gap: 22px; margin-top: 56px; }
+    .loco-card {
+      background: var(--glass-bg); border: 1px solid var(--glass-bd);
+      border-radius: 20px; padding: 34px 26px;
       backdrop-filter: blur(14px);
-      transition: transform .35s ease, box-shadow .35s ease, border-color .35s ease;
-      cursor: default;
-      position: relative;
-      overflow: hidden;
+      transition: transform .32s ease, box-shadow .32s ease, border-color .32s ease;
+      position: relative; overflow: hidden;
     }
-    .animal-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 3px;
-      border-radius: 20px 20px 0 0;
-    }
-    .animal-card.bird::before   { background: linear-gradient(90deg, var(--indigo), var(--indigo-lt)); }
-    .animal-card.insect::before { background: linear-gradient(90deg, #10b981, #34d399); }
-    .animal-card.bat::before    { background: linear-gradient(90deg, #7c3aed, #a78bfa); }
-    .animal-card.dino::before   { background: linear-gradient(90deg, var(--amber), #f59e0b); }
+    .loco-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 20px 20px 0 0; }
+    .c-mers::before      { background: linear-gradient(90deg,#00e676,#69f0ae); }
+    .c-alergare::before  { background: linear-gradient(90deg,#ff6d00,#ffab40); }
+    .c-salt::before      { background: linear-gradient(90deg,#0091ea,#40c4ff); }
+    .c-serp::before      { background: linear-gradient(90deg,#6a1b9a,#ce93d8); }
+    .c-cat::before       { background: linear-gradient(90deg,#558b2f,#aed581); }
+    .c-tar::before       { background: linear-gradient(90deg,#4e342e,#a1887f); }
+    .loco-card:hover { transform: translateY(-8px); border-color: rgba(105,240,174,.4); box-shadow: 0 18px 55px rgba(0,0,0,.5), var(--glow-g); }
+    .loco-icon { width: 66px; height: 66px; border-radius: 15px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; font-size: 1.9rem; }
+    .c-mers .loco-icon     { background:rgba(0,230,118,.18);   box-shadow:0 0 18px rgba(0,230,118,.3); }
+    .c-alergare .loco-icon { background:rgba(255,109,0,.18);   box-shadow:0 0 18px rgba(255,109,0,.3); }
+    .c-salt .loco-icon     { background:rgba(0,145,234,.18);   box-shadow:0 0 18px rgba(0,145,234,.3); }
+    .c-serp .loco-icon     { background:rgba(106,27,154,.18);  box-shadow:0 0 18px rgba(106,27,154,.3); }
+    .c-cat .loco-icon      { background:rgba(85,139,47,.18);   box-shadow:0 0 18px rgba(85,139,47,.3); }
+    .c-tar .loco-icon      { background:rgba(78,52,46,.25);    box-shadow:0 0 18px rgba(78,52,46,.3); }
+    .loco-name { font-size: 1.28rem; font-weight: 700; margin-bottom: 10px; }
+    .loco-desc { font-size: .88rem; color: var(--muted); line-height: 1.72; }
+    .loco-tags { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 16px; }
+    .tag { font-size: .68rem; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; padding: 3px 10px; border-radius: 999px; border: 1px solid rgba(105,240,174,.18); color: var(--muted); }
 
-    .animal-card:hover {
-      transform: translateY(-8px);
-      border-color: rgba(129,140,248,.45);
-      box-shadow: 0 20px 60px rgba(0,0,0,.5), var(--glow-ind);
+    /* ── interactive 3d canvas ── */
+    #loco-canvas-wrap {
+      width: 100%; aspect-ratio: 16/7; border-radius: 20px; overflow: hidden;
+      border: 1px solid var(--glass-bd); background: #020d06; margin-top: 28px; position: relative;
     }
-    .animal-icon {
-      width: 68px;
-      height: 68px;
-      border-radius: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 22px;
-      font-size: 2rem;
+    #loco-canvas { width: 100% !important; height: 100% !important; display: block; }
+    .canvas-caption { text-align: center; font-size: .76rem; color: var(--muted); margin-top: 11px; letter-spacing: .06em; }
+    .loco-buttons { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 18px; }
+    .loco-btn {
+      padding: 8px 22px; border-radius: 999px; font-size: .78rem; font-weight: 700;
+      letter-spacing: .07em; text-transform: uppercase;
+      border: 1px solid rgba(105,240,174,.22); background: rgba(7,20,13,.7);
+      color: var(--muted); cursor: pointer; transition: all var(--t); font-family: var(--font);
     }
-    .animal-icon.bird   { background: rgba(79,70,229,.2); box-shadow: 0 0 20px rgba(79,70,229,.3); }
-    .animal-icon.insect { background: rgba(16,185,129,.2); box-shadow: 0 0 20px rgba(16,185,129,.3); }
-    .animal-icon.bat    { background: rgba(124,58,237,.2); box-shadow: 0 0 20px rgba(124,58,237,.3); }
-    .animal-icon.dino   { background: rgba(251,191,36,.15); box-shadow: 0 0 20px rgba(251,191,36,.25); }
+    .loco-btn:hover { border-color: var(--green); color: var(--green-lt); }
+    .loco-btn.active { border-color: var(--green); color: var(--green); background: rgba(0,230,118,.1); box-shadow: var(--glow-g); }
 
-    .animal-name {
-      font-size: 1.35rem;
-      font-weight: 700;
-      letter-spacing: -.01em;
-      margin-bottom: 10px;
+    /* ── animal cards ── */
+    .animal-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; margin-top: 56px; }
+    .animal-card {
+      background: var(--glass-bg); border: 1px solid var(--glass-bd); border-radius: 18px;
+      padding: 28px 22px; backdrop-filter: blur(14px);
+      transition: transform .32s ease, box-shadow .32s ease;
     }
-    .animal-desc {
-      font-size: .9rem;
-      color: var(--muted);
-      line-height: 1.7;
-    }
-    .animal-tags {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-top: 18px;
-    }
-    .tag {
-      font-size: .7rem;
-      font-weight: 600;
-      letter-spacing: .07em;
-      text-transform: uppercase;
-      padding: 3px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(129,140,248,.25);
-      color: var(--muted);
-    }
+    .animal-card:hover { transform: translateY(-6px); box-shadow: 0 14px 48px rgba(0,0,0,.5), var(--glow-g); }
+    .animal-emoji { font-size: 2.4rem; margin-bottom: 12px; display: block; }
+    .animal-name { font-size: 1.15rem; font-weight: 700; margin-bottom: 5px; }
+    .animal-speed { font-size: .84rem; font-weight: 700; color: var(--green); margin-bottom: 9px; }
+    .animal-desc { font-size: .86rem; color: var(--muted); line-height: 1.68; }
+    .animal-badge { display: inline-block; margin-top: 11px; padding: 3px 12px; border-radius: 999px; font-size: .68rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; background: rgba(0,230,118,.1); border: 1px solid rgba(0,230,118,.28); color: var(--green-lt); }
 
-    /* ── MECHANICS SECTION ────────────────────────────────────── */
-    .mechanics-layout {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 60px;
-      align-items: start;
-      margin-top: 60px;
+    /* ── speed bars ── */
+    .speed-list { margin-top: 48px; display: flex; flex-direction: column; gap: 14px; }
+    .speed-item { display: flex; align-items: center; gap: 14px; }
+    .speed-animal { min-width: 130px; font-size: .88rem; font-weight: 600; text-align: right; color: var(--white); }
+    .speed-track { flex: 1; height: 28px; background: rgba(105,240,174,.05); border-radius: 999px; overflow: hidden; border: 1px solid rgba(105,240,174,.08); }
+    .speed-fill {
+      height: 100%; border-radius: 999px; display: flex; align-items: center; padding-left: 12px;
+      font-size: .73rem; font-weight: 800; letter-spacing: .06em;
+      width: 0; transition: width 1.6s cubic-bezier(.16,1,.3,1);
     }
-    @media (max-width: 768px) { .mechanics-layout { grid-template-columns: 1fr; gap: 40px; } }
+    .sf-g  { background: linear-gradient(90deg,#00e676,#69f0ae); color: #003318; }
+    .sf-o  { background: linear-gradient(90deg,#ff6d00,#ffab40); color: #3d1800; }
+    .sf-b  { background: linear-gradient(90deg,#0091ea,#40c4ff); color: #001833; }
+    .sf-p  { background: linear-gradient(90deg,#6a1b9a,#ce93d8); color: #1a0028; }
+    .sf-a  { background: linear-gradient(90deg,#f9a825,#fff176); color: #2d1900; }
+    .sf-t  { background: linear-gradient(90deg,#1de9b6,#84ffff);  color: #002820; }
+    .speed-val { min-width: 65px; font-size: .84rem; font-weight: 700; color: var(--green-lt); }
 
-    .mechanic-item {
-      display: flex;
-      gap: 20px;
-      align-items: flex-start;
-      padding: 24px;
-      border-radius: var(--radius);
-      background: var(--glass-bg);
-      border: 1px solid var(--glass-bd);
-      backdrop-filter: blur(10px);
+    /* ── mechanics ── */
+    .mech-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: start; margin-top: 56px; }
+    @media (max-width: 768px) { .mech-layout { grid-template-columns: 1fr; gap: 36px; } }
+    .mech-item {
+      display: flex; gap: 18px; align-items: flex-start;
+      padding: 22px; border-radius: var(--r); background: var(--glass-bg);
+      border: 1px solid var(--glass-bd); backdrop-filter: blur(10px);
       transition: transform var(--t), border-color var(--t);
     }
-    .mechanic-item:hover { transform: translateX(6px); border-color: rgba(6,182,212,.4); }
-    .mechanic-num {
-      font-size: 2rem;
-      font-weight: 900;
-      color: var(--indigo-lt);
-      line-height: 1;
-      min-width: 40px;
-    }
-    .mechanic-content h3 {
-      font-size: 1.05rem;
-      font-weight: 700;
-      margin-bottom: 8px;
-      color: var(--white);
-    }
-    .mechanic-content p { font-size: .88rem; color: var(--muted); line-height: 1.65; }
+    .mech-item:hover { transform: translateX(6px); border-color: rgba(29,233,182,.4); }
+    .mech-num { font-size: 1.9rem; font-weight: 900; color: var(--green-lt); line-height: 1; min-width: 38px; }
+    .mech-body h3 { font-size: 1rem; font-weight: 700; margin-bottom: 7px; color: var(--white); }
+    .mech-body p  { font-size: .86rem; color: var(--muted); line-height: 1.68; }
 
-    /* ── WING ANATOMY SVG SECTION ─────────────────────────────── */
-    .wing-section {
-      background: linear-gradient(135deg, rgba(15,20,60,.8), rgba(4,5,15,.9));
-      border: 1px solid var(--glass-bd);
-      border-radius: 24px;
-      padding: 56px;
-      backdrop-filter: blur(16px);
-      overflow: hidden;
-      position: relative;
-    }
-    @media (max-width: 768px) { .wing-section { padding: 32px 20px; } }
-    .wing-section::after {
-      content: '';
-      position: absolute;
-      top: -80px; right: -80px;
-      width: 360px; height: 360px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(79,70,229,.15) 0%, transparent 70%);
-      pointer-events: none;
-    }
-    .wing-diagram {
-      width: 100%;
-      max-width: 560px;
-      margin: 40px auto 0;
-      display: block;
-    }
-
-    /* ── AERO CARDS ───────────────────────────────────────────── */
-    .aero-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 20px;
-      margin-top: 50px;
-    }
-    .aero-card {
-      background: var(--glass-bg);
-      border: 1px solid var(--glass-bd);
-      border-radius: var(--radius);
-      padding: 32px 24px;
-      backdrop-filter: blur(12px);
+    /* ── adaptations ── */
+    .adapt-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 18px; margin-top: 48px; }
+    .adapt-card {
+      background: var(--glass-bg); border: 1px solid var(--glass-bd); border-radius: var(--r);
+      padding: 30px 22px; backdrop-filter: blur(12px);
       transition: transform var(--t), box-shadow var(--t);
     }
-    .aero-card:hover { transform: scale(1.03); box-shadow: var(--glow-cyan); }
-    .aero-icon { font-size: 2rem; margin-bottom: 14px; }
-    .aero-card h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; }
-    .aero-card p { font-size: .85rem; color: var(--muted); line-height: 1.65; }
+    .adapt-card:hover { transform: scale(1.025); box-shadow: var(--glow-g); }
+    .adapt-icon { font-size: 1.9rem; margin-bottom: 12px; }
+    .adapt-card h3 { font-size: 1.02rem; font-weight: 700; margin-bottom: 7px; }
+    .adapt-card p  { font-size: .86rem; color: var(--muted); line-height: 1.68; }
 
-    /* ── ADAPTATIONS TIMELINE ─────────────────────────────────── */
-    .timeline {
-      position: relative;
-      margin-top: 60px;
-      padding-left: 32px;
-    }
-    .timeline::before {
-      content: '';
-      position: absolute;
-      left: 12px; top: 0; bottom: 0;
-      width: 2px;
-      background: linear-gradient(to bottom, var(--indigo), var(--cyan), transparent);
-    }
+    /* ── timeline ── */
+    .timeline { position: relative; margin-top: 56px; padding-left: 30px; }
+    .timeline::before { content: ''; position: absolute; left: 11px; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom,var(--green),var(--teal),transparent); }
     .timeline-item {
-      position: relative;
-      margin-bottom: 40px;
-      padding: 24px 28px;
-      background: var(--glass-bg);
-      border: 1px solid var(--glass-bd);
-      border-radius: var(--radius);
-      backdrop-filter: blur(10px);
-      transition: transform var(--t);
+      position: relative; margin-bottom: 36px; padding: 22px 26px;
+      background: var(--glass-bg); border: 1px solid var(--glass-bd); border-radius: var(--r);
+      backdrop-filter: blur(10px); transition: transform var(--t);
     }
     .timeline-item:hover { transform: translateX(8px); }
-    .timeline-dot {
-      position: absolute;
-      left: -26px;
-      top: 28px;
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      background: var(--indigo);
-      box-shadow: 0 0 0 4px rgba(79,70,229,.25), var(--glow-ind);
-    }
-    .timeline-label {
-      font-size: .72rem;
-      font-weight: 700;
-      letter-spacing: .14em;
-      text-transform: uppercase;
-      color: var(--cyan);
-      margin-bottom: 6px;
-    }
-    .timeline-item h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; }
-    .timeline-item p { font-size: .88rem; color: var(--muted); line-height: 1.65; }
+    .timeline-dot { position: absolute; left: -24px; top: 26px; width: 13px; height: 13px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 4px rgba(0,230,118,.22), var(--glow-g); }
+    .tl-label { font-size: .7rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--green); margin-bottom: 5px; }
+    .timeline-item h3 { font-size: 1rem; font-weight: 700; margin-bottom: 6px; }
+    .timeline-item p  { font-size: .86rem; color: var(--muted); line-height: 1.68; }
 
-    /* ── COMPARISON TABLE ─────────────────────────────────────── */
-    .table-wrap {
-      overflow-x: auto;
-      margin-top: 50px;
-      border-radius: var(--radius);
-      border: 1px solid var(--glass-bd);
-      backdrop-filter: blur(12px);
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: .88rem;
-    }
-    thead th {
-      background: rgba(79,70,229,.18);
-      padding: 16px 20px;
-      text-align: left;
-      font-size: .75rem;
-      font-weight: 700;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      color: var(--indigo-lt);
-      border-bottom: 1px solid var(--glass-bd);
-    }
-    tbody tr {
-      border-bottom: 1px solid rgba(129,140,248,.08);
-      transition: background var(--t);
-    }
+    /* ── table ── */
+    .table-wrap { overflow-x: auto; margin-top: 48px; border-radius: var(--r); border: 1px solid var(--glass-bd); backdrop-filter: blur(12px); }
+    table { width: 100%; border-collapse: collapse; font-size: .86rem; }
+    thead th { background: rgba(0,230,118,.1); padding: 15px 18px; text-align: left; font-size: .73rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--green-lt); border-bottom: 1px solid var(--glass-bd); }
+    tbody tr { border-bottom: 1px solid rgba(105,240,174,.06); transition: background var(--t); }
     tbody tr:last-child { border-bottom: none; }
-    tbody tr:hover { background: rgba(79,70,229,.08); }
-    tbody td {
-      padding: 14px 20px;
-      color: var(--muted);
-      vertical-align: middle;
-    }
+    tbody tr:hover { background: rgba(0,230,118,.05); }
+    tbody td { padding: 13px 18px; color: var(--muted); vertical-align: middle; }
     tbody td:first-child { color: var(--white); font-weight: 600; }
-    .td-good { color: #34d399; }
-    .td-mark { color: var(--indigo-lt); font-weight: 700; }
+    .td-hi { color: var(--green-lt); }
+    .td-mk { color: var(--lime); font-weight: 700; }
 
-    /* ── CONCLUSION / FOOTER ──────────────────────────────────── */
-    .conclusion {
-      text-align: center;
-      padding: 100px 24px;
-      max-width: 800px;
-      margin: 0 auto;
+    /* ── bio diagram wrap ── */
+    .bio-wrap {
+      background: linear-gradient(135deg, rgba(7,20,13,.85), rgba(4,9,10,.92));
+      border: 1px solid var(--glass-bd); border-radius: 22px; padding: 46px;
+      backdrop-filter: blur(16px); overflow: hidden; position: relative;
     }
+    @media (max-width: 640px) { .bio-wrap { padding: 26px 16px; } }
+    .bio-wrap::after { content: ''; position: absolute; top: -80px; right: -80px; width: 340px; height: 340px; border-radius: 50%; background: radial-gradient(circle, rgba(0,230,118,.12) 0%, transparent 70%); pointer-events: none; }
+
+    /* ── conclusion ── */
+    .conclusion { text-align: center; padding: 96px 24px; max-width: 800px; margin: 0 auto; }
     .conclusion-quote {
-      font-size: clamp(1.2rem, 3vw, 1.8rem);
-      font-style: italic;
-      font-weight: 300;
-      color: var(--muted);
-      line-height: 1.6;
-      margin: 24px 0 40px;
-      padding: 24px 32px;
-      border-left: 3px solid var(--indigo);
-      background: var(--glass-bg);
-      border-radius: 0 var(--radius) var(--radius) 0;
-      backdrop-filter: blur(10px);
-      text-align: left;
+      font-size: clamp(1.05rem, 2.4vw, 1.55rem); font-style: italic; font-weight: 300;
+      color: var(--muted); line-height: 1.65; margin: 22px 0 38px;
+      padding: 22px 28px; border-left: 3px solid var(--green);
+      background: var(--glass-bg); border-radius: 0 var(--r) var(--r) 0;
+      backdrop-filter: blur(10px); text-align: left;
     }
-    .conclusion-quote strong { color: var(--indigo-lt); font-style: normal; font-weight: 700; }
+    .conclusion-quote strong { color: var(--green-lt); font-style: normal; font-weight: 700; }
 
-    footer {
-      text-align: center;
-      padding: 32px 24px;
-      font-size: .8rem;
-      color: var(--muted);
-      border-top: 1px solid rgba(129,140,248,.1);
-      letter-spacing: .05em;
-    }
-    footer span { color: var(--indigo-lt); font-weight: 600; }
+    footer { text-align: center; padding: 30px 24px; font-size: .78rem; color: var(--muted); border-top: 1px solid rgba(105,240,174,.07); letter-spacing: .05em; }
+    footer span { color: var(--green-lt); font-weight: 700; }
 
-    /* ── 3D CANVAS SECTION (wing visualizer) ──────────────────── */
-    #wing-canvas-wrap {
-      width: 100%;
-      aspect-ratio: 16/7;
-      border-radius: 20px;
-      overflow: hidden;
-      border: 1px solid var(--glass-bd);
-      background: #050815;
-      margin-top: 60px;
-      position: relative;
-    }
-    #wing-canvas {
-      width: 100% !important;
-      height: 100% !important;
-      display: block;
-    }
-    .canvas-caption {
-      text-align: center;
-      font-size: .78rem;
-      color: var(--muted);
-      margin-top: 12px;
-      letter-spacing: .06em;
-    }
+    /* ── animations ── */
+    @keyframes fadeUp { from { opacity:0; transform:translateY(26px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes pulse  { 0%,100% { opacity:.4; transform:scaleY(1); } 50% { opacity:1; transform:scaleY(1.14); } }
 
-    /* ── ANIMATIONS ────────────────────────────────────────────── */
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(28px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes scrollPulse {
-      0%, 100% { opacity: .4; transform: scaleY(1); }
-      50%       { opacity: 1;  transform: scaleY(1.15); }
-    }
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50%       { transform: translateY(-12px); }
-    }
+    .reveal { opacity:0; transform:translateY(32px); transition: opacity .7s ease, transform .7s ease; }
+    .reveal.visible { opacity:1; transform:translateY(0); }
 
-    /* Scroll-reveal utility */
-    .reveal {
-      opacity: 0;
-      transform: translateY(36px);
-      transition: opacity .7s ease, transform .7s ease;
-    }
-    .reveal.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    /* ── RESPONSIVE ────────────────────────────────────────────── */
-    @media (max-width: 600px) {
-      nav { padding: 12px 16px; }
-      .nav-links { gap: 14px; }
-      section { padding: 70px 16px; }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { animation: none !important; transition: none !important; }
-    }
+    @media (max-width: 600px) { nav { padding: 11px 16px; } .nav-links { gap: 14px; } section { padding: 66px 14px; } }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
   </style>
 </head>
 <body>
 
-<!-- ══ BACKGROUND CANVAS ══════════════════════════════════════ -->
 <canvas id="hero-canvas" aria-hidden="true"></canvas>
 
-<!-- ══ NAV ════════════════════════════════════════════════════ -->
-<nav aria-label="Navigation principală">
-  <div class="nav-logo">Locomotia Zburatoarelor</div>
+<nav aria-label="Navigație principală">
+  <div class="nav-logo">Locomoția Terestră</div>
   <ul class="nav-links">
+    <li><a href="#tipuri">Tipuri</a></li>
     <li><a href="#animale">Animale</a></li>
-    <li><a href="#mecanism">Mecanism</a></li>
-    <li><a href="#aerodinamica">Aerodinamică</a></li>
+    <li><a href="#biomecanica">Biomecanică</a></li>
     <li><a href="#adaptari">Adaptări</a></li>
     <li><a href="#concluzie">Concluzie</a></li>
   </ul>
 </nav>
 
-<!-- ══ MAIN ═══════════════════════════════════════════════════ -->
 <main>
 
-  <!-- ── HERO ────────────────────────────────────────────────── -->
-  <section id="hero" aria-labelledby="hero-title">
-    <p class="hero-eyebrow">Proiect Biologie · Clasa 7D</p>
-    <h1 class="hero-title" id="hero-title">Locomotia<br>Zburatoarelor</h1>
-    <p class="hero-sub">
-      Explorarea mecanismelor fascinante prin care vertebratele și nevertebratele au cucerit cerul
-      de-a lungul a milioane de ani de evoluție.
-    </p>
-    <div class="hero-badges">
-      <span class="badge badge-indigo">Păsări</span>
-      <span class="badge badge-cyan">Insecte</span>
-      <span class="badge badge-teal">Lilieci</span>
-      <span class="badge badge-indigo">Pterozauri</span>
+<!-- ── HERO ─────────────────────────────────────────────── -->
+<section id="hero" aria-labelledby="hero-title">
+  <p class="hero-eyebrow">Proiect Biologie · Clasa 7D</p>
+  <h1 class="hero-title" id="hero-title">Locomoția în<br>Mediul Terestru</h1>
+  <p class="hero-sub">Explorarea fascinantă a modurilor în care animalele terestre se deplasează — de la galopul ghepardului la unduirea șarpelui.</p>
+  <div class="hero-badges">
+    <span class="badge b-g">Mers</span>
+    <span class="badge b-a">Alergare</span>
+    <span class="badge b-t">Saltație</span>
+    <span class="badge b-l">Serpentoid</span>
+  </div>
+  <div class="hero-scroll" aria-hidden="true">
+    <span>Derulează</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── STATS ─────────────────────────────────────────────── -->
+<section aria-label="Statistici">
+  <div class="stats-row">
+    <article class="stat-card reveal">
+      <div class="stat-num" data-count="120">0</div>
+      <div class="stat-label">km/h — Ghepard (record mondial)</div>
+    </article>
+    <article class="stat-card reveal">
+      <div class="stat-num" data-count="6">0</div>
+      <div class="stat-label">Tipuri principale de locomoție terestră</div>
+    </article>
+    <article class="stat-card reveal">
+      <div class="stat-num" data-count="30000">0</div>
+      <div class="stat-label">Specii terestre de vertebrate</div>
+    </article>
+    <article class="stat-card reveal">
+      <div class="stat-num" data-count="370">0</div>
+      <div class="stat-label">Milioane ani de locomoție terestră</div>
+    </article>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── TIPURI DE LOCOMOȚIE ──────────────────────────────── -->
+<section id="tipuri" aria-labelledby="tipuri-title">
+  <p class="section-label">01 · Clasificare</p>
+  <h2 class="section-title" id="tipuri-title">Tipuri de Locomoție Terestră</h2>
+  <p class="section-body">Animalele terestre au evoluat șase strategii fundamentale de deplasare, fiecare optimizată pentru un mediu și un stil de viață specific. Fiecare tip reflectă un compromis elegant între viteză, eficiență energetică și adaptare la teren.</p>
+
+  <div class="loco-grid">
+
+    <article class="loco-card c-mers reveal">
+      <div class="loco-icon">🚶</div>
+      <h3 class="loco-name">Mersul (Ambulație)</h3>
+      <p class="loco-desc">Forma de locomoție în care cel puțin un picior menține permanent contactul cu solul. Centrul de masă se ridică în mijlocul pasului și coboară la aterizare — ca un pendul inversat. Eficientă energetic pe distanțe mari.</p>
+      <div class="loco-tags"><span class="tag">Bipede</span><span class="tag">Quadrupede</span><span class="tag">Pendul inversat</span></div>
+    </article>
+
+    <article class="loco-card c-alergare reveal">
+      <div class="loco-icon">🏃</div>
+      <h3 class="loco-name">Alergarea (Cursă)</h3>
+      <p class="loco-desc">Se diferențiază de mers prin existența fazei de zbor — un moment în care toate membrele sunt simultan în aer. Tendoanele acționează ca arcuri elastice, stocând și eliberând energie la fiecare pas. Gheparzii ating 120 km/h.</p>
+      <div class="loco-tags"><span class="tag">Faza de zbor</span><span class="tag">Energie elastică</span><span class="tag">Tendoane-arc</span></div>
+    </article>
+
+    <article class="loco-card c-salt reveal">
+      <div class="loco-icon">🐸</div>
+      <h3 class="loco-name">Saltația (Săritura)</h3>
+      <p class="loco-desc">Propulsie explozivă prin extensia rapidă a membrelor posterioare puternic musculare. Caracteristică broaștelor, iepurilor și cangurilor. Aterizarea disipează energia printr-o flexie controlată — articulațiile acționează ca amortizoare.</p>
+      <div class="loco-tags"><span class="tag">Membre posterioare</span><span class="tag">Propulsie</span><span class="tag">Cangur · Broască</span></div>
+    </article>
+
+    <article class="loco-card c-serp reveal">
+      <div class="loco-icon">🐍</div>
+      <h3 class="loco-name">Locomoția Serpentinoidă</h3>
+      <p class="loco-desc">Mișcare ondulatorie laterală (serpentoid) sau rectilinie prin contracție musculară peristaltică. Șerpii au peste 300 de vertebre și mușchi specializați care creează unde de propagare. Nu necesită membre — corpul însuși este „roata".</p>
+      <div class="loco-tags"><span class="tag">Șarpe · Vierme</span><span class="tag">Unde laterale</span><span class="tag">Peristaltism</span></div>
+    </article>
+
+    <article class="loco-card c-cat reveal">
+      <div class="loco-icon">🐈</div>
+      <h3 class="loco-name">Cățărarea (Escaladarea)</h3>
+      <p class="loco-desc">Deplasare pe suprafețe verticale sau înclinate prin combinarea forței de apucare și a echilibrului dinamic. Pisicile și primate folosesc gheare retractabile sau tampoane adezive. Coloana vertebrală flexibilă permite redirecționarea rapidă.</p>
+      <div class="loco-tags"><span class="tag">Gheare</span><span class="tag">Primate</span><span class="tag">Adeziune</span></div>
+    </article>
+
+    <article class="loco-card c-tar reveal">
+      <div class="loco-icon">🦎</div>
+      <h3 class="loco-name">Târâtul (Reptatia)</h3>
+      <p class="loco-desc">Contact extins al abdomenului cu solul, deplasare prin mișcări laterale ale trunchiului și empingerea membrelor scurte laterale. Specific reptilelor, dar și unor insecte. Pozitia joasă reduce rezistența vântului și consumul energetic.</p>
+      <div class="loco-tags"><span class="tag">Reptile</span><span class="tag">Insecte</span><span class="tag">Contact abdominal</span></div>
+    </article>
+
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── INTERACTIVE 3D ───────────────────────────────────── -->
+<section aria-label="Vizualizare 3D interactivă">
+  <p class="section-label">Interactiv · 3D</p>
+  <h2 class="section-title">Animale în Mișcare — 3D</h2>
+  <p class="section-body">Selectează tipul de locomoție pentru a vizualiza animația 3D a animalului corespunzător. Mișcă mouse-ul deasupra canvasului pentru a roti scena.</p>
+
+  <div class="loco-buttons">
+    <button class="loco-btn active" data-type="horse">🐎 Galop (Cal)</button>
+    <button class="loco-btn" data-type="snake">🐍 Serpentoid (Șarpe)</button>
+    <button class="loco-btn" data-type="frog">🐸 Saltație (Broască)</button>
+    <button class="loco-btn" data-type="wolf">🐺 Trap (Lup)</button>
+  </div>
+
+  <div id="loco-canvas-wrap">
+    <canvas id="loco-canvas" aria-label="Animație 3D locomoție animale"></canvas>
+  </div>
+  <p class="canvas-caption">Model 3D interactiv — selectează animalul · mișcă mouse-ul pentru rotire</p>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── ANIMALE ──────────────────────────────────────────── -->
+<section id="animale" aria-labelledby="animale-title">
+  <p class="section-label">02 · Exemple</p>
+  <h2 class="section-title" id="animale-title">Animale și Locomoția Lor</h2>
+  <p class="section-body">Fiecare animal terestru a evoluat strategii locomotorii unice, adaptate perfect la nișa ecologică și stilul de viață. Compararea lor relevă principii biomechanice universale.</p>
+
+  <div class="animal-grid">
+    <article class="animal-card reveal">
+      <span class="animal-emoji">🐆</span>
+      <div class="animal-name">Ghepardul</div>
+      <div class="animal-speed">⚡ 120 km/h — Cel mai rapid animal terestru</div>
+      <p class="animal-desc">Coloana vertebrală extrem de flexibilă acționează ca un arc suplimentar. La galop complet, picioarele se întâlnesc în aer de două ori pe ciclu. Tendoanele din membre stochează energie elastică la aterizare.</p>
+      <span class="animal-badge">Alergare</span>
+    </article>
+    <article class="animal-card reveal">
+      <span class="animal-emoji">🐎</span>
+      <div class="animal-name">Calul</div>
+      <div class="animal-speed">⚡ 70 km/h — Galop extins</div>
+      <p class="animal-desc">Posedă 4 tipuri de mers: pas, trap, canter și galop. La galop, există o fază de suspensie când toate cele 4 picioare sunt în aer simultan. Unghia (copita) este un deget unic extrem de modificat.</p>
+      <span class="animal-badge">Galop</span>
+    </article>
+    <article class="animal-card reveal">
+      <span class="animal-emoji">🐇</span>
+      <div class="animal-name">Iepurele</div>
+      <div class="animal-speed">⚡ 70 km/h — Saltație asimetrică</div>
+      <p class="animal-desc">Se deplasează prin saltație: membrele posterioare lungi și puternice propulsează corpul înainte, iar cele anterioare aterizează mai întâi. Galopeaza asimetric — picioarele posterioare ating solul înaintea celor anterioare.</p>
+      <span class="animal-badge">Saltație</span>
+    </article>
+    <article class="animal-card reveal">
+      <span class="animal-emoji">🐘</span>
+      <div class="animal-name">Elefantul</div>
+      <div class="animal-speed">⚡ 25 km/h — Mers cu «degete de picioare»</div>
+      <p class="animal-desc">Singurul mamifer care nu poate sări — picioarele groase ca stâlpii nu permit faza de suspensie. Merge pe vârfuri, pe o pernă fibroasă care acționează ca amortizor. La «alergare», ritmul de mers crește, fără faza de zbor.</p>
+      <span class="animal-badge">Mers</span>
+    </article>
+    <article class="animal-card reveal">
+      <span class="animal-emoji">🐍</span>
+      <div class="animal-name">Șarpele</div>
+      <div class="animal-speed">⚡ 16 km/h — Locomoție serpentinoidă</div>
+      <p class="animal-desc">Folosește 4 tipuri de locomoție: lateral undulatory (sinusoidal), rectilinear (omidă), sidewinding (lateral oblică) și concertina (acordeon). Solzii abdominali (scute) oferă tracțiune pe sol.</p>
+      <span class="animal-badge">Serpentoid</span>
+    </article>
+    <article class="animal-card reveal">
+      <span class="animal-emoji">🦘</span>
+      <div class="animal-name">Cangurul</div>
+      <div class="animal-speed">⚡ 56 km/h — Saltație bipedalã</div>
+      <p class="animal-desc">Cel mai eficient locomotor terestru la viteze mari: la 20 km/h consumă mai puțină energie decât la 10 km/h datorită tendoanelor Achile elastice imense. Nu poate merge înapoi — singurul animal cu locomoție obligatoriu unidirecțională.</p>
+      <span class="animal-badge">Saltație bipedalã</span>
+    </article>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── VITEZE COMPARATE ─────────────────────────────────── -->
+<section aria-labelledby="viteze-title">
+  <p class="section-label">03 · Performanță</p>
+  <h2 class="section-title" id="viteze-title">Viteze Maxime Comparate</h2>
+  <p class="section-body">Recordurile de viteză ale animalelor terestre reflectă milioane de ani de presiune selectivă — fie pentru a prinde prada, fie pentru a scăpa de prădători.</p>
+
+  <div class="speed-list">
+    <div class="speed-item reveal">
+      <div class="speed-animal">🐆 Ghepard</div>
+      <div class="speed-track"><div class="speed-fill sf-g" data-w="100">120 KM/H</div></div>
+      <div class="speed-val">120 km/h</div>
     </div>
-    <div class="hero-scroll" aria-hidden="true">
-      <span>Derulează</span>
-      <div class="scroll-line"></div>
+    <div class="speed-item reveal">
+      <div class="speed-animal">🦌 Pronghorn</div>
+      <div class="speed-track"><div class="speed-fill sf-o" data-w="80">96 KM/H</div></div>
+      <div class="speed-val">96 km/h</div>
     </div>
-  </section>
-
-  <div class="divider"></div>
-
-  <!-- ── STATS ────────────────────────────────────────────────── -->
-  <section aria-label="Statistici generale">
-    <div class="stats-row">
-      <article class="stat-card reveal">
-        <div class="stat-num" data-count="10000">0</div>
-        <div class="stat-label">Specii de păsări</div>
-      </article>
-      <article class="stat-card reveal">
-        <div class="stat-num" data-count="1000000">0</div>
-        <div class="stat-label">Specii de insecte zburătoare</div>
-      </article>
-      <article class="stat-card reveal">
-        <div class="stat-num" data-count="1400">0</div>
-        <div class="stat-label">Specii de lilieci</div>
-      </article>
-      <article class="stat-card reveal">
-        <div class="stat-num" data-count="228">0</div>
-        <div class="stat-label">Milioane ani de evoluție</div>
-      </article>
+    <div class="speed-item reveal">
+      <div class="speed-animal">🐎 Cal</div>
+      <div class="speed-track"><div class="speed-fill sf-b" data-w="58">70 KM/H</div></div>
+      <div class="speed-val">70 km/h</div>
     </div>
-  </section>
+    <div class="speed-item reveal">
+      <div class="speed-animal">🦁 Leu</div>
+      <div class="speed-track"><div class="speed-fill sf-p" data-w="48">58 KM/H</div></div>
+      <div class="speed-val">58 km/h</div>
+    </div>
+    <div class="speed-item reveal">
+      <div class="speed-animal">🦘 Cangur</div>
+      <div class="speed-track"><div class="speed-fill sf-a" data-w="47">56 KM/H</div></div>
+      <div class="speed-val">56 km/h</div>
+    </div>
+    <div class="speed-item reveal">
+      <div class="speed-animal">🏃 Om (sprint)</div>
+      <div class="speed-track"><div class="speed-fill sf-t" data-w="38">45 KM/H</div></div>
+      <div class="speed-val">45 km/h</div>
+    </div>
+    <div class="speed-item reveal">
+      <div class="speed-animal">🐘 Elefant</div>
+      <div class="speed-track"><div class="speed-fill sf-g" data-w="21">25 KM/H</div></div>
+      <div class="speed-val">25 km/h</div>
+    </div>
+    <div class="speed-item reveal">
+      <div class="speed-animal">🐌 Melc</div>
+      <div class="speed-track"><div class="speed-fill sf-o" data-w="1">0.05</div></div>
+      <div class="speed-val">0.05 km/h</div>
+    </div>
+  </div>
+</section>
 
-  <div class="divider"></div>
+<div class="divider"></div>
 
-  <!-- ── ANIMALE ─────────────────────────────────────────────── -->
-  <section id="animale" aria-labelledby="animale-title">
-    <p class="section-label">01 · Categorii</p>
-    <h2 class="section-title" id="animale-title">Tipuri de Zburătoare</h2>
-    <p class="section-body">
-      Zborul a evoluat independent în mai multe grupuri de animale — un exemplu remarcabil
-      de evoluție convergentă. Fiecare grup a dezvoltat soluții unice pentru aceeași provocare:
-      cucerirea aerului.
-    </p>
+<!-- ── BIOMECANICA ─────────────────────────────────────── -->
+<section id="biomecanica" aria-labelledby="bio-title">
+  <p class="section-label">04 · Biofizică</p>
+  <h2 class="section-title" id="bio-title">Biomecanica Locomoției</h2>
+  <p class="section-body">Locomoția terestră este guvernată de patru forțe fundamentale și de principii biomecanice elegante care transformă contracțiile musculare în mișcare eficientă.</p>
 
-    <div class="animal-grid">
-
-      <article class="animal-card bird reveal">
-        <div class="animal-icon bird" aria-hidden="true">🦅</div>
-        <h3 class="animal-name">Păsări (Aves)</h3>
-        <p class="animal-desc">
-          Singurii dinozauri supraviețuitori, păsările au pene specializate, oase pneumatice
-          (goale) și mușchi pectorali puternici. Aripile lor sunt membre anterioare modificate
-          cu pene de zbor (remige) și pene de coadă (rectrice).
-        </p>
-        <div class="animal-tags">
-          <span class="tag">Pene</span>
-          <span class="tag">Oase goale</span>
-          <span class="tag">Termen: Ornithologia</span>
+  <div class="mech-layout">
+    <div>
+      <article class="mech-item reveal">
+        <div class="mech-num">01</div>
+        <div class="mech-body">
+          <h3>Forța de Reacție a Solului</h3>
+          <p>La fiecare pas, solul exercită o forță egală și opusă greutății animalului (Legea a III-a Newton). Această forță verticală susține corpul și — direcționată oblic — generează propulsie. Măsurarea ei pe plăci de forță relevă tiparele de mers.</p>
         </div>
       </article>
-
-      <article class="animal-card insect reveal">
-        <div class="animal-icon insect" aria-hidden="true">🦋</div>
-        <h3 class="animal-name">Insecte (Insecta)</h3>
-        <p class="animal-desc">
-          Primii zburători din istoria vieții, insectele au apărut acum ~350 milioane de ani.
-          Aripile lor sunt extensii ale exoscheletului din chitină. Multe au două perechi de
-          aripi care se mișcă independent cu frecvențe de până la 1000 Hz.
-        </p>
-        <div class="animal-tags">
-          <span class="tag">Chitină</span>
-          <span class="tag">350 M ani</span>
-          <span class="tag">2 perechi aripi</span>
+      <article class="mech-item reveal" style="margin-top:14px">
+        <div class="mech-num">02</div>
+        <div class="mech-body">
+          <h3>Energia Elastică</h3>
+          <p>Tendoanele și ligamentele funcționează ca arcuri biologice, stocând energia cinetică la aterizare și eliberând-o la propulsie. La cangur, tendoanele Achile recuperează până la 93% din energia de impact — reducând dramatic costul locomoției.</p>
         </div>
       </article>
-
-      <article class="animal-card bat reveal">
-        <div class="animal-icon bat" aria-hidden="true">🦇</div>
-        <h3 class="animal-name">Lilieci (Chiroptera)</h3>
-        <p class="animal-desc">
-          Singurii mamifere capabile de zbor adevărat, liliecii folosesc o membrană dermică
-          numită <em>patagium</em> întinsă între degete alungite, corp și picioare posterioare.
-          Ecolocația le permite să vâneze în întuneric total.
-        </p>
-        <div class="animal-tags">
-          <span class="tag">Patagium</span>
-          <span class="tag">Ecolocație</span>
-          <span class="tag">Mamifer</span>
+    </div>
+    <div>
+      <article class="mech-item reveal">
+        <div class="mech-num">03</div>
+        <div class="mech-body">
+          <h3>Centrul de Masă</h3>
+          <p>La mers, centrul de masă urmează o traiectorie arcuită (model pendul inversat): se ridică la mijlocul pasului, coboară la transfer. La alergare, funcționează invers — ca un resort (spring-mass model): coboară la impact, se ridică la propulsie.</p>
         </div>
       </article>
-
-      <article class="animal-card dino reveal">
-        <div class="animal-icon dino" aria-hidden="true">🦕</div>
-        <h3 class="animal-name">Pterozauri (Pterosauria)</h3>
-        <p class="animal-desc">
-          Primii vertebrate care au zburat activ, pterozaurii au trăit alături de dinozauri.
-          Aveau aripi formate dintr-o membrană susținută de un singur deget (al patrulea)
-          extrem de alungit. Envergura variind de la 25 cm la 11 m (Quetzalcoatlus).
-        </p>
-        <div class="animal-tags">
-          <span class="tag">Fosil</span>
-          <span class="tag">Triasic–Cretacic</span>
-          <span class="tag">11m anvergură</span>
+      <article class="mech-item reveal" style="margin-top:14px">
+        <div class="mech-num">04</div>
+        <div class="mech-body">
+          <h3>Costul Transportului</h3>
+          <p>Eficiența locomoției se măsoară în ml O₂/kg/km. Mersul uman are un cost de ~0.16 ml/g/km — mai eficient decât vehiculele mecanice echivalente. Animalele mai mari au costuri relative mai mici (legea allometrică a locomoției).</p>
         </div>
       </article>
-
     </div>
-  </section>
+  </div>
+</section>
 
-  <div class="divider"></div>
+<div class="divider"></div>
 
-  <!-- ── 3D WING CANVAS ──────────────────────────────────────── -->
-  <section aria-label="Vizualizare 3D aripă">
-    <p class="section-label">Interactiv · 3D</p>
-    <h2 class="section-title">Anatomia Aripii — Vizualizare 3D</h2>
-    <p class="section-body">
-      Mișcă cursorul deasupra canvasului pentru a roti modelul 3D al unei aripi de pasăre
-      și a explora structura sa biomechanică.
-    </p>
-    <div id="wing-canvas-wrap">
-      <canvas id="wing-canvas" aria-label="Model 3D interactiv al aripii"></canvas>
-    </div>
-    <p class="canvas-caption">Model 3D interactiv — mișcă mouse-ul pentru a roti</p>
-  </section>
+<!-- ── DIAGRAM SVG ─────────────────────────────────────── -->
+<section aria-label="Diagrama biomecanică">
+  <div class="bio-wrap reveal">
+    <p class="section-label">Diagrama</p>
+    <h2 class="section-title" style="max-width:none">Forțele Locomoției — Schema</h2>
+    <svg viewBox="0 0 600 280" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:600px;display:block;margin:36px auto 0" aria-label="Schema biomecanică a locomoției terestre">
+      <!-- Ground -->
+      <rect x="40" y="210" width="520" height="6" rx="3" fill="rgba(105,240,174,0.2)" />
+      <line x1="40" y1="216" x2="560" y2="216" stroke="#69f0ae" stroke-width="1" stroke-dasharray="6 4" opacity=".3"/>
 
-  <div class="divider"></div>
+      <!-- Animal body (ellipse) -->
+      <ellipse cx="300" cy="165" rx="80" ry="38" fill="rgba(0,230,118,0.12)" stroke="#00e676" stroke-width="1.5"/>
+      <text x="300" y="169" text-anchor="middle" fill="#69f0ae" font-size="12" font-family="Exo 2" font-weight="600">Corp</text>
 
-  <!-- ── MECANISM ────────────────────────────────────────────── -->
-  <section id="mecanism" aria-labelledby="mecanism-title">
-    <p class="section-label">02 · Biofizică</p>
-    <h2 class="section-title" id="mecanism-title">Mecanismul Zborului</h2>
-    <p class="section-body">
-      Zborul implică patru forțe fundamentale care trebuie echilibrate cu precizie.
-      Înțelegerea lor dezvăluie eleganța ingineriei naturii.
-    </p>
+      <!-- Legs -->
+      <line x1="240" y1="200" x2="230" y2="216" stroke="#69f0ae" stroke-width="3" stroke-linecap="round"/>
+      <line x1="270" y1="200" x2="262" y2="216" stroke="#69f0ae" stroke-width="3" stroke-linecap="round"/>
+      <line x1="330" y1="200" x2="338" y2="216" stroke="#69f0ae" stroke-width="3" stroke-linecap="round"/>
+      <line x1="360" y1="200" x2="370" y2="216" stroke="#69f0ae" stroke-width="3" stroke-linecap="round"/>
 
-    <div class="mechanics-layout">
-      <div>
-        <article class="mechanic-item reveal">
-          <div class="mechanic-num">01</div>
-          <div class="mechanic-content">
-            <h3>Sustentația (Lift)</h3>
-            <p>Forța ascendentă generată de profilul aripii. Suprafața superioară a aripii este curbată (cambrată), aerul circulând mai rapid pe deasupra, creând presiune mai mică conform Legii Bernoulli. Aceasta „trage" aripa în sus.</p>
-          </div>
-        </article>
-        <article class="mechanic-item reveal" style="margin-top:16px">
-          <div class="mechanic-num">02</div>
-          <div class="mechanic-content">
-            <h3>Tracțiunea (Thrust)</h3>
-            <p>Forța care propulsează animalul înainte. La păsări, tracțiunea este generată de bătăile aripilor — mai ales de penele primare ale aripii. Insectele generează tracțiune prin rotație complexă a aripilor.</p>
-          </div>
-        </article>
-      </div>
-      <div>
-        <article class="mechanic-item reveal">
-          <div class="mechanic-num">03</div>
-          <div class="mechanic-content">
-            <h3>Greutatea (Weight)</h3>
-            <p>Forța gravitațională care acționează în jos. Zburătorii au evoluat pentru a o minimiza: oase pneumatice la păsări, exoschelet ușor la insecte, structuri cartilaginoase la lilieci.</p>
-          </div>
-        </article>
-        <article class="mechanic-item reveal" style="margin-top:16px">
-          <div class="mechanic-num">04</div>
-          <div class="mechanic-content">
-            <h3>Rezistența la Înaintare (Drag)</h3>
-            <p>Forța care se opune mișcării. Corpul aerodinamic (fuziform) al păsărilor, penele netede și suprafețele plane reduc turbulența și rezistența, permițând zboruri eficiente pe distanțe mari.</p>
-          </div>
-        </article>
-      </div>
-    </div>
-  </section>
+      <!-- Weight arrow (down) -->
+      <line x1="300" y1="127" x2="300" y2="170" stroke="#f44336" stroke-width="2.5"/>
+      <polygon points="300,175 295,163 305,163" fill="#f44336"/>
+      <text x="308" y="148" fill="#f44336" font-size="11" font-family="Exo 2" font-weight="600">Greutate (G)</text>
 
-  <div class="divider"></div>
+      <!-- Ground reaction (up) -->
+      <line x1="266" y1="216" x2="266" y2="178" stroke="#00e676" stroke-width="2.5"/>
+      <polygon points="266,172 261,184 271,184" fill="#00e676"/>
+      <text x="198" y="198" fill="#00e676" font-size="10" font-family="Exo 2" font-weight="600">Reacție sol (R)</text>
 
-  <!-- ── WING ANATOMY DIAGRAM ────────────────────────────────── -->
-  <section aria-labelledby="anatomy-title">
-    <div class="wing-section reveal">
-      <p class="section-label">Anatomie</p>
-      <h2 class="section-title" id="anatomy-title" style="max-width:none;">Structura Aripii de Pasăre</h2>
-      <svg class="wing-diagram" viewBox="0 0 560 260" fill="none" xmlns="http://www.w3.org/2000/svg"
-           aria-label="Diagrama anatomică a aripii de pasăre">
-        <!-- body -->
-        <ellipse cx="90" cy="130" rx="60" ry="38" fill="rgba(79,70,229,0.25)" stroke="#4f46e5" stroke-width="1.5"/>
-        <text x="90" y="134" text-anchor="middle" fill="#818cf8" font-size="11" font-family="Exo 2">Corp</text>
+      <!-- Thrust arrow (forward) -->
+      <line x1="220" y1="165" x2="165" y2="165" stroke="#ffab40" stroke-width="2.5"/>
+      <polygon points="158,165 170,160 170,170" fill="#ffab40"/>
+      <text x="138" y="157" fill="#ffab40" font-size="10" font-family="Exo 2" font-weight="600">Propulsie</text>
 
-        <!-- wing outline -->
-        <path d="M 140 120 Q 260 60 420 40 Q 520 30 545 50 Q 480 80 380 100 Q 280 120 200 150 Q 160 165 140 150 Z"
-              fill="rgba(6,182,212,0.12)" stroke="#06b6d4" stroke-width="1.5"/>
+      <!-- Drag arrow (back) -->
+      <line x1="380" y1="165" x2="430" y2="165" stroke="#40c4ff" stroke-width="2.5"/>
+      <polygon points="437,165 425,160 425,170" fill="#40c4ff"/>
+      <text x="438" y="157" fill="#40c4ff" font-size="10" font-family="Exo 2" font-weight="600">Frecare</text>
 
-        <!-- primary feathers zone -->
-        <path d="M 340 70 Q 420 45 545 50 Q 480 80 380 100 Z"
-              fill="rgba(45,212,191,0.18)" stroke="#2dd4bf" stroke-width="1.2"/>
-        <text x="450" y="65" fill="#2dd4bf" font-size="10" font-family="Exo 2">Pene Primare</text>
+      <!-- Elastic storage arc -->
+      <path d="M 250 216 Q 266 195 282 216" stroke="#ce93d8" stroke-width="2" fill="none" stroke-dasharray="4 3"/>
+      <text x="255" y="238" fill="#ce93d8" font-size="9" font-family="Exo 2">Energie elastică</text>
 
-        <!-- secondary feathers zone -->
-        <path d="M 200 100 Q 280 75 340 70 Q 380 100 280 120 Z"
-              fill="rgba(129,140,248,0.18)" stroke="#818cf8" stroke-width="1.2"/>
-        <text x="265" y="88" fill="#818cf8" font-size="10" font-family="Exo 2">Pene Secundare</text>
+      <!-- Labels -->
+      <text x="300" y="262" text-anchor="middle" fill="#5a8a6a" font-size="10" font-family="Exo 2">Schema forțelor la locomoție terestră quadrupedă</text>
+    </svg>
+  </div>
+</section>
 
-        <!-- covert feathers -->
-        <path d="M 140 120 Q 200 100 280 120 Q 200 150 140 150 Z"
-              fill="rgba(79,70,229,0.22)" stroke="#4f46e5" stroke-width="1.2"/>
-        <text x="190" y="138" fill="#a5b4fc" font-size="10" font-family="Exo 2">Tectrici</text>
+<div class="divider"></div>
 
-        <!-- bones -->
-        <line x1="140" y1="128" x2="310" y2="88" stroke="#fbbf24" stroke-width="2.5" stroke-dasharray="6 3"/>
-        <line x1="310" y1="88" x2="430" y2="65" stroke="#fbbf24" stroke-width="1.8" stroke-dasharray="5 4"/>
-        <circle cx="140" cy="128" r="5" fill="#fbbf24"/>
-        <circle cx="310" cy="88" r="4" fill="#fbbf24"/>
-        <circle cx="430" cy="65" r="3.5" fill="#fbbf24"/>
+<!-- ── ADAPTĂRI ────────────────────────────────────────── -->
+<section id="adaptari" aria-labelledby="adapt-title">
+  <p class="section-label">05 · Morfologie</p>
+  <h2 class="section-title" id="adapt-title">Adaptări Morfologice</h2>
+  <p class="section-body">Locomoția terestră a modelat profund anatomia animalelor. Fiecare structură corporală este un răspuns la provocările fizice ale deplasării pe sol.</p>
 
-        <!-- labels bones -->
-        <text x="215" y="102" fill="#fbbf24" font-size="9.5" font-family="Exo 2" transform="rotate(-12,215,102)">Ulna + Radius</text>
-        <text x="358" y="72" fill="#fbbf24" font-size="9.5" font-family="Exo 2" transform="rotate(-8,358,72)">Metacarp + Falange</text>
+  <div class="adapt-grid">
+    <article class="adapt-card reveal">
+      <div class="adapt-icon">🦴</div>
+      <h3>Membre Alungite</h3>
+      <p>Animalele rapide au membre lungi care măresc lungimea pasului (stride length) fără creșterea proporțională a efortului muscular. Ghepardul are membre de 70% din înălțimea totală, față de 55% la câine.</p>
+    </article>
+    <article class="adapt-card reveal">
+      <div class="adapt-icon">🔩</div>
+      <h3>Digitigradie vs Plantigradie</h3>
+      <p>Mersul pe degete (digitigradie — pisică, cal) alungește efectiv membrul și crește viteza. Mersul pe toată talpa (plantigradie — om, urs) oferă mai multă stabilitate dar viteză redusă. Unguligradie (cal, cerb) = mers pe unghii.</p>
+    </article>
+    <article class="adapt-card reveal">
+      <div class="adapt-icon">⚡</div>
+      <h3>Tendoane ca Arcuri</h3>
+      <p>Tendoanele lungi și elastice din membrele posterioare (Achile la mamifere) stochează energia cinetică la aterizare și o restituie la propulsie. Această recuperare elastică poate reduce consumul muscular cu 40-50%.</p>
+    </article>
+    <article class="adapt-card reveal">
+      <div class="adapt-icon">🏋️</div>
+      <h3>Musculatură Proximală</h3>
+      <p>La animalele rapide, mușchii mari sunt concentrați aproape de corp (proximal), nu în extremitățile membrelor. Astfel, momentul de inerție al membrului este redus, permițând oscilații mai rapide cu mai puțin efort.</p>
+    </article>
+    <article class="adapt-card reveal">
+      <div class="adapt-icon">🌊</div>
+      <h3>Coloana Vertebrală Flexibilă</h3>
+      <p>La ghepard și iepure, coloana se îndoaie și se extinde în fiecare ciclu de galop, adăugând 30-40% la lungimea pasului. La elefant și rinocer, coloana este rigidă pentru a suporta masa enormă.</p>
+    </article>
+    <article class="adapt-card reveal">
+      <div class="adapt-icon">⚖️</div>
+      <h3>Centrul de Greutate Scăzut</h3>
+      <p>Reptilele și insectele au centrul de greutate aproape de sol — extrem de stabile, dar lente. Mamiferele bipede (om, cangur) au centrul de greutate ridicat — mai puțin stabil, dar capabil de pași mai lungi și mai eficienți.</p>
+    </article>
+  </div>
+</section>
 
-        <!-- force arrows -->
-        <line x1="90" y1="90" x2="90" y2="55" stroke="#34d399" stroke-width="2"/>
-        <polygon points="90,48 86,58 94,58" fill="#34d399"/>
-        <text x="95" y="62" fill="#34d399" font-size="10" font-family="Exo 2">Lift</text>
+<div class="divider"></div>
 
-        <line x1="90" y1="170" x2="90" y2="205" stroke="#f87171" stroke-width="2"/>
-        <polygon points="90,212 86,202 94,202" fill="#f87171"/>
-        <text x="95" y="208" fill="#f87171" font-size="10" font-family="Exo 2">Greutate</text>
+<!-- ── TIMELINE ────────────────────────────────────────── -->
+<section aria-labelledby="evo-title">
+  <p class="section-label">06 · Evoluție</p>
+  <h2 class="section-title" id="evo-title">Evoluția Locomoției Terestre</h2>
+  <p class="section-body">Trecerea de la mediul acvatic la cel terestru a necesitat transformări anatomice radicale de-a lungul a milioane de ani.</p>
 
-        <line x1="30" y1="128" x2="550" y2="128" stroke="rgba(255,255,255,0.06)" stroke-width="1" stroke-dasharray="4 6"/>
+  <div class="timeline">
+    <article class="timeline-item reveal">
+      <div class="timeline-dot" aria-hidden="true"></div>
+      <div class="tl-label">~375 Milioane ani · Devonian</div>
+      <h3>Primii Tetrapode — Tichthyostega, Acanthostega</h3>
+      <p>Peștii cu aripioare lobate (Sarcopterygii) dezvoltă membre cu degete din aripioare. Primele amfibienii timpurii ies pe uscat parțial, menținând legătura cu apa pentru reproducere. Scheletul se adaptează la suportarea greutății împotriva gravitației.</p>
+    </article>
+    <article class="timeline-item reveal">
+      <div class="timeline-dot" aria-hidden="true"></div>
+      <div class="tl-label">~310 Milioane ani · Carbonifer</div>
+      <h3>Reptilele Timpurii — Independența Completă</h3>
+      <p>Oul amniotic permite reproducerea pe uscat. Reptilele timpurii (cotilozauri) adoptă postura sprawling (membre laterale), eficientă pentru târât. Scheletul devine mai rigid pentru susținerea greutății complete pe uscat.</p>
+    </article>
+    <article class="timeline-item reveal">
+      <div class="timeline-dot" aria-hidden="true"></div>
+      <div class="tl-label">~250 Milioane ani · Triasic</div>
+      <h3>Postura Erectă — Dinozauri și Mamifere Timpurii</h3>
+      <p>Membrul se rotește sub corp (postura erectă), reducând energia necesară locomoției față de postura sprawling. Dinozaurii bipezi (Theropoda) și mamifere timpurii demonstrează că postura erectă permite viteze mai mari și eficiență sporită.</p>
+    </article>
+    <article class="timeline-item reveal">
+      <div class="timeline-dot" aria-hidden="true"></div>
+      <div class="tl-label">~65 Milioane ani · Paleogen</div>
+      <h3>Radiația Mamiferelor — Diversificarea Locomoției</h3>
+      <p>După dispariția dinozaurilor, mamiferele ocupă rapid toate nișele terestre. Se diversifică formele de locomoție: cursori (alergători), saltaturi (săritori), fossori (săpători), arboricoli (cățărători). Fiecare strategie este optimizată metabolic și anatomic.</p>
+    </article>
+  </div>
+</section>
 
-        <!-- title -->
-        <text x="280" y="245" text-anchor="middle" fill="#8892b8" font-size="10" font-family="Exo 2">
-          Aripa de Pasăre — Vedere Dorsală
-        </text>
-      </svg>
-    </div>
-  </section>
+<div class="divider"></div>
 
-  <div class="divider"></div>
+<!-- ── TABEL COMPARATIV ────────────────────────────────── -->
+<section aria-labelledby="tabel-title">
+  <p class="section-label">07 · Comparativ</p>
+  <h2 class="section-title" id="tabel-title">Comparație — Tipuri de Locomoție</h2>
 
-  <!-- ── AERODINAMICA ────────────────────────────────────────── -->
-  <section id="aerodinamica" aria-labelledby="aero-title">
-    <p class="section-label">03 · Fizică</p>
-    <h2 class="section-title" id="aero-title">Principii Aerodinamice</h2>
-    <p class="section-body">
-      Zborul biologic se bazează pe aceleași legi ale fizicii care stau la baza aviației moderne.
-      Natura a descoperit aceste principii cu milioane de ani înaintea omului.
-    </p>
+  <div class="table-wrap reveal">
+    <table>
+      <thead>
+        <tr>
+          <th>Caracteristică</th>
+          <th>Mers</th>
+          <th>Alergare</th>
+          <th>Saltație</th>
+          <th>Serpentoid</th>
+          <th>Cățărare</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Faza de zbor</td>
+          <td>Nu</td>
+          <td class="td-mk">Da</td>
+          <td class="td-mk">Da</td>
+          <td>N/A</td>
+          <td>Nu</td>
+        </tr>
+        <tr>
+          <td>Contact permanent</td>
+          <td class="td-hi">Da (≥1 picior)</td>
+          <td>Nu</td>
+          <td>Nu</td>
+          <td class="td-hi">Da (corp)</td>
+          <td>Da</td>
+        </tr>
+        <tr>
+          <td>Viteză relativă</td>
+          <td>Mică-medie</td>
+          <td class="td-mk">Mare</td>
+          <td>Medie-mare</td>
+          <td>Mică-medie</td>
+          <td>Mică</td>
+        </tr>
+        <tr>
+          <td>Eficiență energetică</td>
+          <td class="td-hi">Foarte bună</td>
+          <td>Medie</td>
+          <td>Bună (distanță)</td>
+          <td class="td-hi">Excelentă</td>
+          <td>Mică</td>
+        </tr>
+        <tr>
+          <td>Exemple tipice</td>
+          <td>Om, elefant, urs</td>
+          <td>Ghepard, cal</td>
+          <td>Cangur, broască</td>
+          <td>Șarpe, vierme</td>
+          <td>Pisică, primate</td>
+        </tr>
+        <tr>
+          <td>Necesită membre</td>
+          <td>Da</td>
+          <td>Da</td>
+          <td>Da</td>
+          <td class="td-mk">Nu</td>
+          <td>Da</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
 
-    <div class="aero-grid">
-      <article class="aero-card reveal">
-        <div class="aero-icon" aria-hidden="true">〰️</div>
-        <h3>Legea Bernoulli</h3>
-        <p>Presiunea unui fluid scade pe măsura creșterii vitezei. Profilul curbat al aripii (airfoil) forțează aerul să circule mai rapid pe față superioară, generând presiune mai mică și sustentație.</p>
-      </article>
-      <article class="aero-card reveal">
-        <div class="aero-icon" aria-hidden="true">📐</div>
-        <h3>Unghiul de Atac</h3>
-        <p>Unghiul dintre aripă și direcția fluxului de aer. Crescând unghiul de atac, crește și sustentația, dar și rezistența. Depășind ~15°, apare fenomenul de <strong>picaj</strong> (stall).</p>
-      </article>
-      <article class="aero-card reveal">
-        <div class="aero-icon" aria-hidden="true">🌀</div>
-        <h3>Vortexuri de Vârf</h3>
-        <p>La capetele aripilor se formează vortexuri (turbulențe circulare) care reduc eficiența. Păsările cu aripi lungi și înguste (albatros) sau cu pene separate la vârf (vultur) minimizează acest efect.</p>
-      </article>
-      <article class="aero-card reveal">
-        <div class="aero-icon" aria-hidden="true">⚡</div>
-        <h3>Eficiența Aerodinamică</h3>
-        <p>Raportul Lift/Drag determină eficiența zborului. Albatrosul atinge L/D ≈ 20:1 — printre cele mai eficiente configurații aerodinamice din natură, permițând zboruri de mii de km.</p>
-      </article>
-      <article class="aero-card reveal">
-        <div class="aero-icon" aria-hidden="true">🔄</div>
-        <h3>Zborul Planat</h3>
-        <p>Exploatarea curenților termici (coloane de aer cald ascendent) permite păsărilor mari să planeze fără să bată din aripi. Vulturii pot rămâne în aer ore întregi consumând energie minimă.</p>
-      </article>
-      <article class="aero-card reveal">
-        <div class="aero-icon" aria-hidden="true">🎯</div>
-        <h3>Controlul Zborului</h3>
-        <p>Direcția se schimbă prin modificarea formei aripii și a cozii. Penele rectrice controlează înălțimea și direcția. Unele păsări pot zbura pe loc (colibri) prin mișcări de tip ∞.</p>
-      </article>
-    </div>
-  </section>
+<div class="divider"></div>
 
-  <div class="divider"></div>
-
-  <!-- ── ADAPTATIONS TIMELINE ─────────────────────────────────── -->
-  <section id="adaptari" aria-labelledby="adaptari-title">
-    <p class="section-label">04 · Evoluție</p>
-    <h2 class="section-title" id="adaptari-title">Adaptări Evolutive</h2>
-    <p class="section-body">
-      Zborul a impus modificări radicale ale anatomiei. Fiecare adaptare reprezintă o soluție
-      elegantă la constrângerile fizice ale aerului.
-    </p>
-
-    <div class="timeline">
-      <article class="timeline-item reveal">
-        <div class="timeline-dot" aria-hidden="true"></div>
-        <div class="timeline-label">Sistem Osos</div>
-        <h3>Oase Pneumatice și Fuzionate</h3>
-        <p>Păsările au oase goale pe interior (pneumatizate), conectate la sacii aerieni pulmonari.
-           Greutatea scheletului unei păsări este deseori mai mică decât greutatea penelor sale.
-           Mai multe oase sunt fuzionate pentru rigiditate și rezistență la stres mecanic.</p>
-      </article>
-      <article class="timeline-item reveal">
-        <div class="timeline-dot" aria-hidden="true"></div>
-        <div class="timeline-label">Musculatură</div>
-        <h3>Mușchi Pectorali Hipertrofiați</h3>
-        <p>Mușchii pectorali ai păsărilor reprezintă 15–25% din greutatea corporală totală.
-           Sternum-ul (osul pieptului) are o creastă (carina) enormă care oferă suprafața de inserție
-           pentru acești mușchi. La pinguini care înoată, aceeași arhitectură funcționează în apă.</p>
-      </article>
-      <article class="timeline-item reveal">
-        <div class="timeline-dot" aria-hidden="true"></div>
-        <div class="timeline-label">Sistem Respirator</div>
-        <h3>Flux Unidirecțional de Aer</h3>
-        <p>Spre deosebire de mamifere, păsările au saci aerieni anteriori și posteriori care creează
-           un flux constant de aer proaspăt prin plămâni — atât la inspirație cât și la expirație.
-           Această eficiență respiratorie permite zboruri la altitudini cu oxigen redus (ex. gâscă
-           himalayană la 9.000 m).</p>
-      </article>
-      <article class="timeline-item reveal">
-        <div class="timeline-dot" aria-hidden="true"></div>
-        <div class="timeline-label">Pene</div>
-        <h3>Keratina — Material de Înaltă Performanță</h3>
-        <p>Penele sunt structuri din keratină cu un design hierarhic remarcabil: rachis central →
-           ramificații (barbule) → cârlige micronice (barbicele) care formează o suprafață impermeabilă.
-           O pasăre medie are 1.500–30.000 de pene. Năpârlirea periodică asigură menținerea performanțelor
-           aerodinamice.</p>
-      </article>
-      <article class="timeline-item reveal">
-        <div class="timeline-dot" aria-hidden="true"></div>
-        <div class="timeline-label">Neurologie</div>
-        <h3>Coordonare Senzorio-Motorie Avansată</h3>
-        <p>Cerebelul păsărilor este proporțional mai mare decât la reptile, permițând calcule rapide
-           de echilibru și mișcare. Fovea retiniană dublă (unele specii au și a treia fovea) oferă
-           acuitate vizuală de 2–8× superioară omului — esențial pentru navigație și vânare.</p>
-      </article>
-    </div>
-  </section>
-
-  <div class="divider"></div>
-
-  <!-- ── COMPARISON TABLE ─────────────────────────────────────── -->
-  <section aria-labelledby="tabel-title">
-    <p class="section-label">05 · Comparativ</p>
-    <h2 class="section-title" id="tabel-title">Comparație între Zburătoare</h2>
-
-    <div class="table-wrap reveal">
-      <table>
-        <thead>
-          <tr>
-            <th>Caracteristică</th>
-            <th>Păsări</th>
-            <th>Insecte</th>
-            <th>Lilieci</th>
-            <th>Pterozauri ✝</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Structura aripii</td>
-            <td>Pene pe os modificat</td>
-            <td>Membrană chitinică</td>
-            <td>Patagium dermic</td>
-            <td>Membrană pe deget IV</td>
-          </tr>
-          <tr>
-            <td>Perechi de aripi</td>
-            <td class="td-mark">1 pereche</td>
-            <td class="td-mark">1–2 perechi</td>
-            <td class="td-mark">1 pereche</td>
-            <td class="td-mark">1 pereche</td>
-          </tr>
-          <tr>
-            <td>Viteză maximă</td>
-            <td class="td-good">389 km/h (Șoim Pelegrin)</td>
-            <td>58 km/h (Libellula)</td>
-            <td>160 km/h (Tadarida)</td>
-            <td>~100 km/h (estimat)</td>
-          </tr>
-          <tr>
-            <td>Envergură max.</td>
-            <td>3,6 m (Albatros)</td>
-            <td>30 cm (Attacus)</td>
-            <td>1,7 m (Pteropus)</td>
-            <td class="td-good">11 m (Quetzalcoatlus)</td>
-          </tr>
-          <tr>
-            <td>Frecvență bătăi/s</td>
-            <td>3–80 Hz</td>
-            <td class="td-good">5–1.000 Hz</td>
-            <td>10–17 Hz</td>
-            <td>~1–3 Hz (estimat)</td>
-          </tr>
-          <tr>
-            <td>Navigație</td>
-            <td>Magnetism + Stele + Soare</td>
-            <td>Soare + Polarizare</td>
-            <td class="td-good">Ecolocație ultrasonică</td>
-            <td>Necunoscut</td>
-          </tr>
-          <tr>
-            <td>Metabolism</td>
-            <td>Homeoterem (cald)</td>
-            <td class="td-good">Poichiloterm (rece)</td>
-            <td>Homeoterem (cald)</td>
-            <td>Posibil homeoterem</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
-
-  <div class="divider"></div>
-
-  <!-- ── CONCLUZIE ───────────────────────────────────────────── -->
-  <section id="concluzie" class="conclusion" aria-labelledby="concluzie-title">
-    <p class="section-label" style="text-align:center">06 · Concluzie</p>
-    <h2 class="section-title" id="concluzie-title" style="max-width:none;text-align:center">
-      Ce ne Învață Zborul?
-    </h2>
-    <blockquote class="conclusion-quote reveal">
-      „Zborul nu este un privilegiu al câtorva — este soluția la care <strong>evoluția a ajuns
-      de cel puțin patru ori independent</strong> în istoria vieții pe Pământ: la insecte,
-      pterozauri, păsări și lilieci. Fiecare grup a reinventat aripile pornind de la aceleași
-      legi ale fizicii, dar cu materiale și strategii radical diferite."
-    </blockquote>
-    <p class="section-body reveal" style="margin:0 auto;text-align:center;max-width:660px">
-      Studierea locomotiei zburatoarelor ne oferă nu doar cunoștințe de biologie, ci și inspirație
-      pentru inginerie (drone bio-inspirate, avioane cu aripi flexibile) și ne reamintește că
-      natura rămâne cel mai ingenios inginer de pe planetă.
-    </p>
-  </section>
+<!-- ── CONCLUZIE ───────────────────────────────────────── -->
+<section id="concluzie" class="conclusion" aria-labelledby="concluzie-title">
+  <p class="section-label" style="text-align:center">08 · Concluzie</p>
+  <h2 class="section-title" id="concluzie-title" style="max-width:none;text-align:center">Ce ne Învață Mișcarea?</h2>
+  <blockquote class="conclusion-quote reveal">
+    „Locomoția terestră nu este un simplu mecanism de deplasare — este <strong>rezultatul a 375 de milioane de ani de selecție evolutivă</strong>. De la prima aripioară care a atins uscatul devonian până la galopul suprasonic al ghepardului modern, fiecare pas a fost șlefuit de cel mai exigent inginer din univers: presiunea de supraviețuire."
+  </blockquote>
+  <p class="section-body reveal" style="margin:0 auto;text-align:center;max-width:660px">
+    Studierea locomoției terestre ne oferă nu doar cunoștințe de biologie fundamentală, ci și inspirație pentru robotică bio-inspirată (roboți hexapozi, exoscheleturi), biomecanică medicală (proteze inteligente) și înțelegerea profundă a legăturii dintre formă și funcție în lumea vie.
+  </p>
+</section>
 
 </main>
 
-<!-- ══ FOOTER ═══════════════════════════════════════════════ -->
 <footer>
   <p>Proiect de Biologie · <span>Gligor Ștefan Albert</span> · Clasa <span>7D</span></p>
-  <p style="margin-top:6px;color:#4a5280;font-size:.74rem">Locomotia Zburatoarelor · 2026</p>
+  <p style="margin-top:5px;color:#2a4a35;font-size:.72rem">Locomoția în Mediul Terestru · 2026</p>
 </footer>
 
-<!-- ══ THREE.JS SCRIPTS ══════════════════════════════════════ -->
+<!-- ══ THREE.JS SCRIPTS ══════════════════════════════════ -->
 <script type="module">
 import * as THREE from 'three';
 
-/* ───── Shared helpers ───── */
 const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
 let noMotion = mq.matches;
 mq.addEventListener('change', e => { noMotion = e.matches; });
 
-/* ══════════════════════════════════════════════════════════
-   1. HERO BACKGROUND — particle galaxy + flying bird shapes
-   ══════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════
+   1. HERO — animated terrain + particles + running animal
+   ══════════════════════════════════════════════════════ */
 (function initHero() {
   const canvas   = document.getElementById('hero-canvas');
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
   renderer.setClearColor(0x000000, 0);
-  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setSize(innerWidth, innerHeight);
 
   const scene  = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 200);
-  camera.position.z = 28;
+  scene.fog    = new THREE.FogExp2(0x04090a, 0.016);
 
-  /* ── Starfield ── */
-  const STAR_COUNT = 2800;
-  const starGeo  = new THREE.BufferGeometry();
-  const starPos  = new Float32Array(STAR_COUNT * 3);
-  const starSize = new Float32Array(STAR_COUNT);
-  for (let i = 0; i < STAR_COUNT; i++) {
-    starPos[i*3]   = (Math.random() - .5) * 120;
-    starPos[i*3+1] = (Math.random() - .5) * 80;
-    starPos[i*3+2] = (Math.random() - .5) * 80 - 10;
-    starSize[i]    = Math.random();
+  const camera = new THREE.PerspectiveCamera(62, innerWidth / innerHeight, 0.1, 200);
+  camera.position.set(0, 9, 22);
+  camera.lookAt(0, 1, -8);
+
+  /* ── Lights ── */
+  scene.add(new THREE.AmbientLight(0x002a12, 2.0));
+  const sun = new THREE.DirectionalLight(0x80ffaa, 1.5);
+  sun.position.set(8, 20, 5);
+  scene.add(sun);
+  const glow1 = new THREE.PointLight(0x00e676, 3, 35);
+  glow1.position.set(-4, 6, -5);
+  scene.add(glow1);
+  const glow2 = new THREE.PointLight(0x1de9b6, 2, 28);
+  glow2.position.set(8, 4, 2);
+  scene.add(glow2);
+
+  /* ── Terrain ── */
+  const SEGS = 50;
+  const terrainGeo = new THREE.PlaneGeometry(110, 65, SEGS, SEGS);
+  terrainGeo.rotateX(-Math.PI / 2);
+  const pos = terrainGeo.attributes.position;
+  const N   = pos.count;
+  const vx  = new Float32Array(N);
+  const vz  = new Float32Array(N);
+  for (let i = 0; i < N; i++) { vx[i] = pos.getX(i); vz[i] = pos.getZ(i); }
+
+  /* Solid mesh */
+  const solidMesh = new THREE.Mesh(terrainGeo, new THREE.MeshPhongMaterial({
+    color: 0x0c2e12, emissive: 0x021008, shininess: 12, side: THREE.DoubleSide,
+  }));
+  scene.add(solidMesh);
+
+  /* Wireframe overlay */
+  const wireMesh = new THREE.Mesh(terrainGeo, new THREE.MeshBasicMaterial({
+    color: 0x00ff88, wireframe: true, transparent: true, opacity: 0.10,
+  }));
+  scene.add(wireMesh);
+
+  /* ── Particles (fireflies) ── */
+  const PC = 1400;
+  const pGeo = new THREE.BufferGeometry();
+  const pArr = new Float32Array(PC * 3);
+  const pVel = new Float32Array(PC * 3);
+  for (let i = 0; i < PC; i++) {
+    pArr[i*3]   = (Math.random() - .5) * 90;
+    pArr[i*3+1] = Math.random() * 14 + 0.5;
+    pArr[i*3+2] = (Math.random() - .5) * 70 - 5;
+    pVel[i*3]   = (Math.random() - .5) * .5;
+    pVel[i*3+1] = Math.random() * .35 + .05;
+    pVel[i*3+2] = (Math.random() - .5) * .4;
   }
-  starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
-  starGeo.setAttribute('aSize',    new THREE.BufferAttribute(starSize, 1));
+  pGeo.setAttribute('position', new THREE.BufferAttribute(pArr, 3));
+  const pMesh = new THREE.Points(pGeo, new THREE.PointsMaterial({
+    color: 0x88ff66, size: .14, sizeAttenuation: true,
+    transparent: true, opacity: .75, blending: THREE.AdditiveBlending, depthWrite: false,
+  }));
+  scene.add(pMesh);
 
-  const starMat = new THREE.PointsMaterial({
-    color: 0xaabbff,
-    size: 0.22,
-    sizeAttenuation: true,
-    transparent: true,
-    opacity: 0.65,
-    blending: THREE.AdditiveBlending,
-    depthWrite: false,
+  /* ── Running quadruped (geometric) ── */
+  const anGroup = new THREE.Group();
+  const bodyMat = new THREE.MeshPhongMaterial({ color: 0x2e6b30, emissive: 0x0a2010, shininess: 50 });
+  const legMat  = new THREE.MeshPhongMaterial({ color: 0x1e4a22, emissive: 0x081408, shininess: 45 });
+
+  const bodyMesh = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.65, 0.52), bodyMat);
+  anGroup.add(bodyMesh);
+
+  const headMesh = new THREE.Mesh(new THREE.SphereGeometry(0.32, 12, 8), bodyMat);
+  headMesh.position.set(1.1, 0.28, 0);
+  anGroup.add(headMesh);
+
+  /* Snout */
+  const snout = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.18, 0.22), bodyMat);
+  snout.position.set(1.4, 0.14, 0);
+  anGroup.add(snout);
+
+  const legs = [];
+  [[0.65, 0, 0.22], [0.65, 0, -0.22], [-0.65, 0, 0.22], [-0.65, 0, -0.22]].forEach(([x, y, z]) => {
+    const pivot = new THREE.Group();
+    pivot.position.set(x, -0.2, z);
+    const legMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.07, 0.85, 8), legMat);
+    legMesh.position.y = -0.42;
+    pivot.add(legMesh);
+    const hoof = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.1, 0.12), new THREE.MeshPhongMaterial({ color: 0x111111 }));
+    hoof.position.y = -0.88;
+    pivot.add(hoof);
+    anGroup.add(pivot);
+    legs.push(pivot);
   });
-  const stars = new THREE.Points(starGeo, starMat);
-  scene.add(stars);
 
-  /* ── Nebula glow planes ── */
-  const mkGlow = (color, x, y, z, s) => {
-    const geo = new THREE.PlaneGeometry(s, s);
-    const mat = new THREE.MeshBasicMaterial({
-      color,
-      transparent: true,
-      opacity: 0.035,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false,
-      side: THREE.DoubleSide,
-    });
-    const m = new THREE.Mesh(geo, mat);
-    m.position.set(x, y, z);
-    scene.add(m);
-  };
-  mkGlow(0x4f46e5, -8, 4, -20, 55);
-  mkGlow(0x06b6d4,  10, -5, -25, 60);
-  mkGlow(0x2dd4bf,  0,  0, -15, 40);
+  /* Tail */
+  const tailCurve = new THREE.CatmullRomCurve3([
+    new THREE.Vector3(-1.0, 0.12, 0),
+    new THREE.Vector3(-1.45, 0.38, 0),
+    new THREE.Vector3(-1.75, 0.22, 0),
+  ]);
+  anGroup.add(new THREE.Mesh(
+    new THREE.TubeGeometry(tailCurve, 8, 0.05, 6, false),
+    bodyMat
+  ));
 
-  /* ── Bird silhouettes (simple wing shapes) ── */
-  const birds = [];
-  const makeBirdShape = () => {
-    const s = new THREE.Shape();
-    s.moveTo(0, 0);
-    s.quadraticCurveTo(-1.2, 0.5,  -2.2, 0);
-    s.quadraticCurveTo(-1.2, -0.3,  0, 0);
-    s.quadraticCurveTo( 1.2, 0.5,   2.2, 0);
-    s.quadraticCurveTo( 1.2, -0.3,  0, 0);
-    return s;
-  };
+  anGroup.position.set(8, 3.0, -9);
+  scene.add(anGroup);
 
-  const birdColors = [0x818cf8, 0x06b6d4, 0x2dd4bf, 0xa78bfa, 0xfbbf24];
-  for (let b = 0; b < 9; b++) {
-    const shapeGeo = new THREE.ShapeGeometry(makeBirdShape());
-    const mat = new THREE.MeshBasicMaterial({
-      color: birdColors[b % birdColors.length],
-      transparent: true,
-      opacity: .18 + Math.random() * .14,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false,
-      side: THREE.DoubleSide,
-    });
-    const mesh = new THREE.Mesh(shapeGeo, mat);
-    const scale = .5 + Math.random() * 1.2;
-    mesh.scale.set(scale, scale, scale);
-    mesh.position.set(
-      (Math.random() - .5) * 40,
-      (Math.random() - .5) * 24,
-      (Math.random() - .5) * 8 - 5
-    );
-    mesh.userData = {
-      vx: (.3 + Math.random() * .5) * (Math.random() > .5 ? 1 : -1),
-      vy: (.1 + Math.random() * .2) * (Math.random() > .5 ? 1 : -1),
-      phase: Math.random() * Math.PI * 2,
-      speed: .4 + Math.random() * .6,
-    };
-    scene.add(mesh);
-    birds.push(mesh);
-  }
-
-  /* ── Mouse influence ── */
+  /* ── Mouse ── */
   let mx = 0, my = 0;
   document.addEventListener('mousemove', e => {
-    mx = (e.clientX / window.innerWidth  - .5) * 2;
-    my = (e.clientY / window.innerHeight - .5) * 2;
+    mx = (e.clientX / innerWidth  - .5) * 2;
+    my = (e.clientY / innerHeight - .5) * 2;
   });
 
-  /* ── Resize ── */
   window.addEventListener('resize', () => {
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    camera.aspect = window.innerWidth / window.innerHeight;
+    renderer.setSize(innerWidth, innerHeight);
+    camera.aspect = innerWidth / innerHeight;
     camera.updateProjectionMatrix();
   });
 
-  /* ── Animation loop ── */
   const clock = new THREE.Clock();
   function animate() {
     requestAnimationFrame(animate);
@@ -1188,268 +939,557 @@ mq.addEventListener('change', e => { noMotion = e.matches; });
     const t  = clock.getElapsedTime();
 
     if (!noMotion) {
-      /* stars slow drift */
-      stars.rotation.y += dt * 0.012;
-      stars.rotation.x += dt * 0.006;
+      /* terrain wave */
+      for (let i = 0; i < N; i++) {
+        const x = vx[i], z = vz[i];
+        pos.setY(i,
+          Math.sin(x * .11 + t * .28) * 2.0 +
+          Math.sin(z * .16 + t * .22) * 1.4 +
+          Math.sin((x * .07 + z * .10) + t * .18) * 1.0
+        );
+      }
+      pos.needsUpdate = true;
+      terrainGeo.computeVertexNormals();
 
-      /* camera mouse parallax */
-      camera.position.x += (mx * 1.8 - camera.position.x) * dt * .8;
-      camera.position.y += (-my * 1.2 - camera.position.y) * dt * .8;
-      camera.lookAt(0, 0, 0);
+      /* particles */
+      const pa = pGeo.attributes.position.array;
+      for (let i = 0; i < PC; i++) {
+        pa[i*3]   += pVel[i*3]   * dt * 6;
+        pa[i*3+1] += pVel[i*3+1] * dt * 6;
+        pa[i*3+2] += pVel[i*3+2] * dt * 6;
+        if (pa[i*3+1] > 16) pa[i*3+1] = 0;
+      }
+      pGeo.attributes.position.needsUpdate = true;
 
-      /* birds fly */
-      birds.forEach(b => {
-        b.position.x += b.userData.vx * dt * b.userData.speed;
-        b.position.y += Math.sin(t * b.userData.speed + b.userData.phase) * dt * 0.4;
-        b.rotation.z  = Math.sin(t * b.userData.speed + b.userData.phase) * 0.15;
-        /* wing flap (scale y) */
-        b.scale.y = b.scale.x * (.6 + .4 * Math.abs(Math.sin(t * 4 * b.userData.speed + b.userData.phase)));
-        /* wrap */
-        if (b.position.x >  25) b.position.x = -25;
-        if (b.position.x < -25) b.position.x =  25;
-      });
+      /* animal running */
+      const spd = 2.8;
+      legs[0].rotation.x =  Math.sin(t * spd * 2)             * 0.85;
+      legs[1].rotation.x =  Math.sin(t * spd * 2 + Math.PI)   * 0.85;
+      legs[2].rotation.x =  Math.sin(t * spd * 2 + Math.PI)   * 0.85;
+      legs[3].rotation.x =  Math.sin(t * spd * 2)             * 0.85;
+      bodyMesh.rotation.z = Math.sin(t * spd * 2) * 0.04;
+      anGroup.position.y  = 3.0 + Math.abs(Math.sin(t * spd * 2)) * 0.1;
+      anGroup.position.x -= dt * 3.5;
+      if (anGroup.position.x < -15) anGroup.position.x = 15;
+
+      /* camera parallax */
+      camera.position.x += (mx * 1.6 - camera.position.x) * dt * 1.2;
+
+      /* lights pulse */
+      glow1.intensity = 2.5 + Math.sin(t * 1.4) * .5;
+      glow2.intensity = 1.8 + Math.sin(t * 1.8 + 1) * .4;
     }
     renderer.render(scene, camera);
   }
   animate();
 })();
 
-/* ══════════════════════════════════════════════════════════
-   2. WING 3D MODEL in wing-canvas
-   ══════════════════════════════════════════════════════════ */
-(function initWing() {
-  const wrap   = document.getElementById('wing-canvas-wrap');
-  const canvas = document.getElementById('wing-canvas');
+/* ══════════════════════════════════════════════════════
+   2. INTERACTIVE ANIMAL LOCOMOTION CANVAS
+   ══════════════════════════════════════════════════════ */
+(function initLoco() {
+  const wrap   = document.getElementById('loco-canvas-wrap');
+  const canvas = document.getElementById('loco-canvas');
   const W = wrap.clientWidth, H = wrap.clientHeight;
 
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
   renderer.setSize(W, H);
-  renderer.setClearColor(0x050815, 1);
+  renderer.setClearColor(0x020d06, 1);
   renderer.shadowMap.enabled = true;
 
   const scene  = new THREE.Scene();
-  scene.fog    = new THREE.Fog(0x050815, 20, 60);
-  const camera = new THREE.PerspectiveCamera(55, W / H, 0.1, 100);
-  camera.position.set(0, 3, 12);
-  camera.lookAt(0, 0, 0);
+  scene.fog    = new THREE.Fog(0x020d06, 18, 45);
+  const camera = new THREE.PerspectiveCamera(55, W / H, 0.1, 80);
+  camera.position.set(0, 3.5, 10);
+  camera.lookAt(0, 1, 0);
 
   /* ── Lights ── */
-  scene.add(new THREE.AmbientLight(0x8899ff, 0.6));
-  const dir = new THREE.DirectionalLight(0xffffff, 1.4);
-  dir.position.set(6, 8, 5);
-  dir.castShadow = true;
-  scene.add(dir);
-  const pnt1 = new THREE.PointLight(0x4f46e5, 2.5, 20);
-  pnt1.position.set(-4, 3, 4);
-  scene.add(pnt1);
-  const pnt2 = new THREE.PointLight(0x06b6d4, 1.8, 18);
-  pnt2.position.set(5, -2, 3);
-  scene.add(pnt2);
+  scene.add(new THREE.AmbientLight(0x004420, 1.5));
+  const keyLight = new THREE.DirectionalLight(0xffffff, 1.6);
+  keyLight.position.set(5, 10, 5);
+  keyLight.castShadow = true;
+  scene.add(keyLight);
+  const fillLight1 = new THREE.PointLight(0x00e676, 3.0, 20);
+  fillLight1.position.set(-5, 3, 3);
+  scene.add(fillLight1);
+  const fillLight2 = new THREE.PointLight(0x1de9b6, 2.0, 18);
+  fillLight2.position.set(5, 1, 2);
+  scene.add(fillLight2);
 
-  /* ── Wing membrane (swept surface) ── */
-  const wingGroup = new THREE.Group();
+  /* ── Ground plane ── */
+  const ground = new THREE.Mesh(
+    new THREE.PlaneGeometry(40, 20, 30, 15),
+    new THREE.MeshPhongMaterial({ color: 0x091a0d, emissive: 0x030a05, shininess: 8 })
+  );
+  ground.rotation.x = -Math.PI / 2;
+  ground.position.y = -1.2;
+  ground.receiveShadow = true;
+  scene.add(ground);
 
-  /* Build wing using CatmullRomCurve3 cross-sections swept via custom geometry */
-  const wingShape = new THREE.Shape();
-  wingShape.moveTo(0, 0);
-  wingShape.bezierCurveTo(-0.3, 0.8, -1.5, 1.2, -5.5, 1.5);
-  wingShape.bezierCurveTo(-4.5, 0.2, -3.0, -0.3, 0, 0);
+  /* Grid overlay on ground */
+  const gridGeo = new THREE.PlaneGeometry(40, 20, 20, 10);
+  const gridMesh = new THREE.Mesh(gridGeo, new THREE.MeshBasicMaterial({
+    color: 0x00ff88, wireframe: true, transparent: true, opacity: 0.06
+  }));
+  gridMesh.rotation.x = -Math.PI / 2;
+  gridMesh.position.y = -1.18;
+  scene.add(gridMesh);
 
-  const extSettings = {
-    steps: 1,
-    depth: 0.04,
-    bevelEnabled: true,
-    bevelThickness: 0.015,
-    bevelSize: 0.015,
-    bevelSegments: 3,
-  };
-  const wingGeo = new THREE.ExtrudeGeometry(wingShape, extSettings);
-  wingGeo.computeVertexNormals();
+  /* ── Particle field ── */
+  const FPC = 400;
+  const fpGeo = new THREE.BufferGeometry();
+  const fpArr = new Float32Array(FPC * 3);
+  for (let i = 0; i < FPC; i++) {
+    fpArr[i*3]   = (Math.random() - .5) * 30;
+    fpArr[i*3+1] = Math.random() * 8;
+    fpArr[i*3+2] = (Math.random() - .5) * 16 - 2;
+  }
+  fpGeo.setAttribute('position', new THREE.BufferAttribute(fpArr, 3));
+  scene.add(new THREE.Points(fpGeo, new THREE.PointsMaterial({
+    color: 0x44ff88, size: .08, transparent: true, opacity: .6,
+    blending: THREE.AdditiveBlending, depthWrite: false,
+  })));
 
-  const wingMat = new THREE.MeshPhongMaterial({
-    color: 0x4f46e5,
-    emissive: 0x1a0e6e,
-    emissiveIntensity: .35,
-    transparent: true,
-    opacity: 0.78,
-    side: THREE.DoubleSide,
-    shininess: 90,
-  });
-  const wingL = new THREE.Mesh(wingGeo, wingMat);
-  wingL.castShadow = true;
-  wingGroup.add(wingL);
+  /* ═════ ANIMAL BUILDERS ═════ */
 
-  /* Mirror for right wing */
-  const wingR = wingL.clone();
-  wingR.scale.x = -1;
-  wingGroup.add(wingR);
+  /* shared materials */
+  const mkMat = (col, emi = 0x000000, shi = 55) =>
+    new THREE.MeshPhongMaterial({ color: col, emissive: emi, shininess: shi });
 
-  /* ── Primary feathers (long thin boxes) ── */
-  const featherMat = new THREE.MeshPhongMaterial({
-    color: 0x818cf8,
-    emissive: 0x2222aa,
-    shininess: 60,
-  });
+  /* ── HORSE (galop) ── */
+  function buildHorse() {
+    const g = new THREE.Group();
+    const bm = mkMat(0xc87941, 0x2a1004, 60);
+    const dm = mkMat(0x7a4820, 0x1a0a02, 50);
 
-  const makeFeather = (x, y, len, angle, side) => {
-    const geo  = new THREE.CylinderGeometry(0.025, 0.005, len, 6);
-    const mesh = new THREE.Mesh(geo, featherMat);
-    mesh.position.set(side * x, y, 0);
-    mesh.rotation.z = side * angle;
-    mesh.castShadow = true;
-    wingGroup.add(mesh);
-  };
+    const body = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.85, 0.65), bm);
+    g.add(body);
 
-  const featherData = [
-    [1.2, 0.8,  1.8, -0.4],
-    [1.8, 1.0,  2.0, -0.5],
-    [2.5, 1.2,  2.2, -0.55],
-    [3.2, 1.3,  2.3, -0.58],
-    [3.9, 1.35, 2.1, -0.6],
-    [4.5, 1.38, 1.9, -0.62],
-  ];
-  featherData.forEach(([x, y, len, ang]) => {
-    makeFeather(x, y, len, ang,  1);
-    makeFeather(x, y, len, ang, -1);
-  });
+    const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.21, 0.27, 1.0, 10), bm);
+    neck.rotation.z = -0.6;
+    neck.position.set(1.1, 0.6, 0);
+    g.add(neck);
 
-  /* ── Bone structure (tubes) ── */
-  const boneMat = new THREE.MeshPhongMaterial({ color: 0xfbbf24, emissive: 0x5a4000, shininess: 120 });
-  const mkBone  = (ax,ay,az, bx,by,bz) => {
-    const path = new THREE.CatmullRomCurve3([new THREE.Vector3(ax,ay,az), new THREE.Vector3(bx,by,bz)]);
-    const geo  = new THREE.TubeGeometry(path, 8, 0.045, 8, false);
-    [-1,1].forEach(side => {
-      const m = new THREE.Mesh(geo, boneMat);
-      m.scale.x = side;
-      wingGroup.add(m);
+    const head = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.5, 0.45), bm);
+    head.position.set(1.6, 1.1, 0);
+    g.add(head);
+
+    const snout = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.28, 0.34), bm);
+    snout.position.set(2.0, 0.95, 0);
+    g.add(snout);
+
+    /* Mane */
+    for (let i = 0; i < 5; i++) {
+      const m = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.35, 0.08), mkMat(0x3d2010, 0x110a04));
+      m.position.set(0.6 - i * 0.25, 0.5, 0);
+      m.rotation.z = 0.3;
+      g.add(m);
+    }
+
+    const legs = [];
+    [[0.8, 0, 0.28], [0.8, 0, -0.28], [-0.8, 0, 0.28], [-0.8, 0, -0.28]].forEach(([x, y, z]) => {
+      const piv = new THREE.Group();
+      piv.position.set(x, -0.22, z);
+      const upper = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.1, 0.65, 8), bm);
+      upper.position.y = -0.32;
+      piv.add(upper);
+      const knee = new THREE.Group();
+      knee.position.y = -0.65;
+      const lower = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.07, 0.55, 8), dm);
+      lower.position.y = -0.27;
+      knee.add(lower);
+      const hoof = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.12, 0.14), mkMat(0x111111, 0x000000, 30));
+      hoof.position.y = -0.57;
+      knee.add(hoof);
+      piv.add(knee);
+      g.add(piv);
+      legs.push({ piv, knee });
     });
-  };
-  mkBone(0,.15,0,  2.5,.9,0);
-  mkBone(2.5,.9,0, 5.0,1.3,0);
-  mkBone(0,.15,0,  0,.15,.05);
 
-  /* Joints */
-  [[0,.15,0],[2.5,.9,0],[5.0,1.3,0]].forEach(([x,y,z]) => {
-    const sg = new THREE.SphereGeometry(0.1,12,12);
-    const sm = new THREE.MeshPhongMaterial({ color:0xfde68a, emissive:0x7a5200, shininess:140 });
-    [-1,1].forEach(side=>{
-      const m = new THREE.Mesh(sg,sm);
-      m.position.set(side*x,y,z);
-      wingGroup.add(m);
+    const tailCurve = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(-1.2, 0.15, 0),
+      new THREE.Vector3(-1.7, 0.45, 0),
+      new THREE.Vector3(-2.0, 0.2, 0),
+      new THREE.Vector3(-2.1, -0.2, 0),
+    ]);
+    g.add(new THREE.Mesh(new THREE.TubeGeometry(tailCurve, 10, 0.06, 6, false), dm));
+
+    g.userData = { type: 'horse', legs };
+    g.position.y = 0.25;
+    return g;
+  }
+
+  /* ── SNAKE (serpentoid) ── */
+  function buildSnake() {
+    const g = new THREE.Group();
+    const N = 22;
+    const spheres = [];
+    for (let i = 0; i < N; i++) {
+      const r = 0.28 - i * 0.009;
+      const hue = i === 0 ? 0x44ee44 : (i % 2 === 0 ? 0x226622 : 0x338833);
+      const s = new THREE.Mesh(
+        new THREE.SphereGeometry(Math.max(r, 0.06), 10, 7),
+        mkMat(hue, 0x0a1a0a, 80)
+      );
+      if (i === 0) {
+        /* Eyes */
+        [-0.12, 0.12].forEach(oz => {
+          const eye = new THREE.Mesh(new THREE.SphereGeometry(0.07, 8, 6), mkMat(0xffee00, 0x332200, 120));
+          eye.position.set(0.22, 0.08, oz);
+          s.add(eye);
+        });
+        /* Tongue */
+        const tongue = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.01, 0.4, 6), mkMat(0xff2222));
+        tongue.rotation.z = Math.PI / 2;
+        tongue.position.set(0.46, -0.04, 0);
+        s.add(tongue);
+      }
+      g.add(s);
+      spheres.push(s);
+    }
+    g.userData = { type: 'snake', spheres };
+    return g;
+  }
+
+  /* ── FROG (saltație) ── */
+  function buildFrog() {
+    const g = new THREE.Group();
+    const bm = mkMat(0x33cc44, 0x0d3d15, 90);
+    const dm = mkMat(0x228833, 0x091a0d, 70);
+
+    const bodyGeo = new THREE.SphereGeometry(0.65, 14, 10);
+    bodyGeo.scale(1.35, 0.72, 1.05);
+    const body = new THREE.Mesh(bodyGeo, bm);
+    g.add(body);
+
+    /* Eyes */
+    [[-0.28, 0.5, 0.48], [0.28, 0.5, 0.48]].forEach(([x, y, z]) => {
+      const eyeBase = new THREE.Mesh(new THREE.SphereGeometry(0.18, 10, 8), bm);
+      eyeBase.position.set(x, y, z);
+      const pupil = new THREE.Mesh(new THREE.SphereGeometry(0.1, 8, 6), mkMat(0x111111, 0x000000, 150));
+      pupil.position.set(x, y + 0.1, z + 0.12);
+      g.add(eyeBase); g.add(pupil);
+    });
+
+    /* Front legs */
+    const fLegs = [];
+    [[-0.55, 0.1, 0.52], [0.55, 0.1, 0.52]].forEach(([x, y, z], idx) => {
+      const fl = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.07, 0.5, 8), dm);
+      fl.position.set(x, y, z);
+      fl.rotation.z = idx === 0 ? 0.7 : -0.7;
+      g.add(fl);
+      fLegs.push(fl);
+    });
+
+    /* Back leg pivots */
+    const bLegs = [];
+    [[-0.52, -0.1, -0.42], [0.52, -0.1, -0.42]].forEach(([x, y, z], idx) => {
+      const piv = new THREE.Group();
+      piv.position.set(x, y, z);
+
+      const upper = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.09, 0.55, 8), bm);
+      upper.position.y = -0.27;
+      piv.add(upper);
+
+      const kpiv = new THREE.Group();
+      kpiv.position.y = -0.55;
+      const lower = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.07, 0.65, 8), dm);
+      lower.position.y = -0.32;
+      kpiv.add(lower);
+
+      const foot = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.08, 0.45), dm);
+      foot.position.set(0, -0.67, 0.08);
+      kpiv.add(foot);
+
+      piv.add(kpiv);
+      g.add(piv);
+      bLegs.push({ piv, kpiv });
+    });
+
+    g.userData = { type: 'frog', bLegs, fLegs, jumpPhase: 0, jumpT: 0, onGround: true };
+    g.position.y = 0;
+    return g;
+  }
+
+  /* ── WOLF (trap/trot) ── */
+  function buildWolf() {
+    const g = new THREE.Group();
+    const bm = mkMat(0x6e6e6e, 0x1a1a1a, 55);
+    const dm = mkMat(0x4a4a4a, 0x111111, 45);
+    const wm = mkMat(0xcccccc, 0x333333, 60);
+
+    const body = new THREE.Mesh(new THREE.BoxGeometry(2.1, 0.75, 0.58), bm);
+    g.add(body);
+
+    /* Neck + head */
+    const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.24, 0.7, 10), bm);
+    neck.rotation.z = -0.4;
+    neck.position.set(0.95, 0.52, 0);
+    g.add(neck);
+
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.32, 12, 9), bm);
+    head.scale.set(1.2, 1.0, 0.95);
+    head.position.set(1.35, 0.92, 0);
+    g.add(head);
+
+    const snout = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.22, 0.28), bm);
+    snout.position.set(1.72, 0.82, 0);
+    g.add(snout);
+
+    /* Ears */
+    [[-0.12, 0.12]].forEach(() => {
+      [-0.12, 0.12].forEach(oz => {
+        const ear = new THREE.Mesh(
+          new THREE.ConeGeometry(0.1, 0.22, 6),
+          mkMat(0x5a5a5a, 0x111111)
+        );
+        ear.position.set(1.28, 1.25, oz);
+        g.add(ear);
+      });
+    });
+
+    /* Tail */
+    const tc = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(-1.05, 0.05, 0),
+      new THREE.Vector3(-1.5, 0.4, 0),
+      new THREE.Vector3(-1.8, 0.7, 0),
+      new THREE.Vector3(-1.7, 0.95, 0),
+    ]);
+    g.add(new THREE.Mesh(new THREE.TubeGeometry(tc, 10, 0.07, 6, false), wm));
+
+    /* Legs */
+    const legs = [];
+    [[0.7, 0, 0.25], [0.7, 0, -0.25], [-0.7, 0, 0.25], [-0.7, 0, -0.25]].forEach(([x, y, z]) => {
+      const piv = new THREE.Group();
+      piv.position.set(x, -0.2, z);
+      const upper = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.08, 0.58, 8), bm);
+      upper.position.y = -0.29;
+      piv.add(upper);
+      const kpiv = new THREE.Group();
+      kpiv.position.y = -0.58;
+      const lower = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.06, 0.5, 8), dm);
+      lower.position.y = -0.25;
+      kpiv.add(lower);
+      const paw = new THREE.Mesh(new THREE.SphereGeometry(0.09, 8, 6), dm);
+      paw.position.y = -0.52;
+      kpiv.add(paw);
+      piv.add(kpiv);
+      g.add(piv);
+      legs.push({ piv, kpiv });
+    });
+
+    g.userData = { type: 'wolf', legs };
+    g.position.y = 0.28;
+    return g;
+  }
+
+  /* ── Build all ── */
+  const horse = buildHorse();
+  const snake = buildSnake();
+  const frog  = buildFrog();
+  const wolf  = buildWolf();
+  [horse, snake, frog, wolf].forEach(a => { scene.add(a); a.visible = false; });
+  horse.visible = true;
+
+  let currentAnimal = horse;
+  let currentType   = 'horse';
+
+  document.querySelectorAll('.loco-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelector('.loco-btn.active')?.classList.remove('active');
+      btn.classList.add('active');
+      const type = btn.dataset.type;
+      if (type === currentType) return;
+      currentAnimal.visible = false;
+      const map = { horse, snake, frog, wolf };
+      currentAnimal = map[type];
+      currentAnimal.visible = true;
+      currentType = type;
     });
   });
-
-  /* Body ellipsoid */
-  const bodyGeo = new THREE.SphereGeometry(1, 24, 16);
-  bodyGeo.scale(1, 0.65, 0.65);
-  const bodyMat = new THREE.MeshPhongMaterial({ color:0x3730a3, emissive:0x111050, shininess:80 });
-  const body = new THREE.Mesh(bodyGeo, bodyMat);
-  body.castShadow = true;
-  wingGroup.add(body);
-
-  /* Tail */
-  const tailShape = new THREE.Shape();
-  tailShape.moveTo(0,0);
-  tailShape.lineTo(-0.6, -0.15);
-  tailShape.lineTo(-1.0, 0);
-  tailShape.lineTo(-0.6,  0.15);
-  tailShape.closePath();
-  const tailGeo = new THREE.ShapeGeometry(tailShape);
-  const tailMat = new THREE.MeshPhongMaterial({ color:0x6366f1, side:THREE.DoubleSide, shininess:60 });
-  const tail = new THREE.Mesh(tailGeo, tailMat);
-  tail.position.set(-1, 0, 0);
-  wingGroup.add(tail);
-
-  /* ── Particle trail ── */
-  const TRAIL = 600;
-  const trailGeo = new THREE.BufferGeometry();
-  const trailPos = new Float32Array(TRAIL * 3);
-  for (let i=0;i<TRAIL*3;i++) trailPos[i] = (Math.random()-.5)*14;
-  trailGeo.setAttribute('position', new THREE.BufferAttribute(trailPos, 3));
-  const trailMat = new THREE.PointsMaterial({ color:0x818cf8, size:.08, sizeAttenuation:true, transparent:true, opacity:.5, blending:THREE.AdditiveBlending, depthWrite:false });
-  scene.add(new THREE.Points(trailGeo, trailMat));
-
-  scene.add(wingGroup);
 
   /* ── Mouse rotate ── */
-  let tmx = 0, tmy = 0, ormx = 0, ormy = 0;
+  let tmx = 0, tmy = 0, omx = 0, omy = 0;
   wrap.addEventListener('mousemove', e => {
     const r = wrap.getBoundingClientRect();
     tmx = ((e.clientX - r.left) / r.width  - .5) * 2;
     tmy = ((e.clientY - r.top)  / r.height - .5) * 2;
   });
-  wrap.addEventListener('mouseleave', () => { tmx=0; tmy=0; });
+  wrap.addEventListener('mouseleave', () => { tmx = 0; tmy = 0; });
 
   /* ── Resize ── */
-  const ro = new ResizeObserver(() => {
+  new ResizeObserver(() => {
     const w = wrap.clientWidth, h = wrap.clientHeight;
     renderer.setSize(w, h);
-    camera.aspect = w/h;
+    camera.aspect = w / h;
     camera.updateProjectionMatrix();
-  });
-  ro.observe(wrap);
+  }).observe(wrap);
+
+  /* ═════ ANIMATION FUNCTIONS ═════ */
+
+  function animateHorse(g, t) {
+    const { legs } = g.userData;
+    const sp = 2.2;
+    /* gallop: front pair together, back pair together, offset π */
+    legs[0].piv.rotation.x =  Math.sin(t * sp * 2) * 0.9;
+    legs[1].piv.rotation.x =  Math.sin(t * sp * 2) * 0.9;
+    legs[2].piv.rotation.x =  Math.sin(t * sp * 2 + Math.PI) * 0.9;
+    legs[3].piv.rotation.x =  Math.sin(t * sp * 2 + Math.PI) * 0.9;
+    legs[0].knee.rotation.x = Math.sin(t * sp * 2 + 0.5) * 0.55;
+    legs[1].knee.rotation.x = Math.sin(t * sp * 2 + 0.5) * 0.55;
+    legs[2].knee.rotation.x = Math.sin(t * sp * 2 + Math.PI + 0.5) * 0.55;
+    legs[3].knee.rotation.x = Math.sin(t * sp * 2 + Math.PI + 0.5) * 0.55;
+    g.position.y = 0.25 + Math.abs(Math.sin(t * sp * 2)) * 0.22;
+    g.rotation.x = Math.sin(t * sp * 2) * 0.04;
+    g.rotation.y = 0;
+  }
+
+  function animateSnake(g, t) {
+    const { spheres } = g.userData;
+    const N = spheres.length;
+    for (let i = 0; i < N; i++) {
+      const phase = (i / N) * Math.PI * 3.5;
+      spheres[i].position.x = -3.8 + i * 0.42;
+      spheres[i].position.y = 0.3 + Math.sin(phase + t * 2.2) * 0.14;
+      spheres[i].position.z = Math.sin(phase + t * 2.2) * 1.6;
+      spheres[i].rotation.y = Math.cos(phase + t * 2.2) * 0.35;
+    }
+    g.position.y = -1.2 + 0.3;
+    g.rotation.y = 0;
+  }
+
+  function animateFrog(g, t) {
+    const ud = g.userData;
+    const { bLegs } = ud;
+    const cycle = (t % 2.5);
+
+    if (cycle < 0.3) {
+      /* crouch */
+      const p = cycle / 0.3;
+      bLegs.forEach(({ piv, kpiv }) => {
+        piv.rotation.x  =  0.8 * p;
+        kpiv.rotation.x = -1.0 * p;
+      });
+      g.position.y = -0.3 * p;
+      g.rotation.x = 0.15 * p;
+    } else if (cycle < 0.7) {
+      /* leap */
+      const p = (cycle - 0.3) / 0.4;
+      bLegs.forEach(({ piv, kpiv }) => {
+        piv.rotation.x  =  0.8 - 1.5 * p;
+        kpiv.rotation.x = -1.0 + 1.0 * p;
+      });
+      g.position.y = Math.sin(p * Math.PI) * 2.2 - 0.3 + 0.3 * p;
+      g.position.z = -2.5 * p;
+      g.rotation.x = -0.3 * p;
+    } else if (cycle < 1.0) {
+      /* landing */
+      const p = (cycle - 0.7) / 0.3;
+      bLegs.forEach(({ piv, kpiv }) => {
+        piv.rotation.x  = -0.7 + 1.5 * p;
+        kpiv.rotation.x = 0;
+      });
+      g.position.y = -0.6 * p;
+      g.position.z = -2.5 + 2.5 * p;
+      g.rotation.x = -0.3 + 0.45 * p;
+    } else {
+      /* rest */
+      bLegs.forEach(({ piv, kpiv }) => {
+        piv.rotation.x  = 0.8 * Math.max(0, 1 - (cycle - 1.0) / 0.5);
+        kpiv.rotation.x = -1.0 * Math.max(0, 1 - (cycle - 1.0) / 0.5);
+      });
+      g.position.y = -0.6 * Math.max(0, 1 - (cycle - 1.0) / 0.5);
+      g.position.z = 0;
+      g.rotation.x = 0;
+    }
+    g.rotation.y = 0;
+  }
+
+  function animateWolf(g, t) {
+    const { legs } = g.userData;
+    const sp = 1.8;
+    /* trot: diagonal pairs */
+    legs[0].piv.rotation.x =  Math.sin(t * sp * 2)           * 0.75;
+    legs[1].piv.rotation.x =  Math.sin(t * sp * 2 + Math.PI) * 0.75;
+    legs[2].piv.rotation.x =  Math.sin(t * sp * 2 + Math.PI) * 0.75;
+    legs[3].piv.rotation.x =  Math.sin(t * sp * 2)           * 0.75;
+    legs.forEach(({ kpiv }, i) => {
+      const phase = i < 2 ? 0 : Math.PI;
+      kpiv.rotation.x = Math.max(0, Math.sin(t * sp * 2 + phase + 0.4)) * 0.6;
+    });
+    g.position.y = 0.28 + Math.abs(Math.sin(t * sp * 2)) * 0.1;
+    g.rotation.x = Math.sin(t * sp * 2) * 0.03;
+    g.rotation.y = 0;
+  }
 
   /* ── Loop ── */
-  const clock2 = new THREE.Clock();
-  function animateWing() {
-    requestAnimationFrame(animateWing);
-    const dt = clock2.getDelta();
-    const t  = clock2.getElapsedTime();
+  const clock = new THREE.Clock();
+  function animateLoco() {
+    requestAnimationFrame(animateLoco);
+    const dt = clock.getDelta();
+    const t  = clock.getElapsedTime();
 
     if (!noMotion) {
-      ormx += (tmx - ormx) * dt * 3;
-      ormy += (tmy - ormy) * dt * 3;
-      wingGroup.rotation.y = ormx * 0.9;
-      wingGroup.rotation.x = -ormy * 0.4;
-      /* Wing flap animation */
-      wingL.rotation.z = Math.sin(t * 2.2) * 0.28 - 0.1;
-      wingR.rotation.z = -wingL.rotation.z;
-      /* Gentle hover */
-      wingGroup.position.y = Math.sin(t * 1.1) * 0.18;
-      pnt1.intensity = 2 + Math.sin(t * 2) * .5;
+      omx += (tmx - omx) * dt * 3;
+      omy += (tmy - omy) * dt * 3;
+
+      if (currentType === 'horse') animateHorse(horse, t);
+      else if (currentType === 'snake') animateSnake(snake, t);
+      else if (currentType === 'frog')  animateFrog(frog, t);
+      else if (currentType === 'wolf')  animateWolf(wolf, t);
+
+      /* Rotate whole scene on mouse */
+      scene.rotation.y = omx * 0.55;
+      scene.rotation.x = -omy * 0.18;
+
+      fillLight1.intensity = 2.8 + Math.sin(t * 1.5) * .4;
     }
     renderer.render(scene, camera);
   }
-  animateWing();
+  animateLoco();
 })();
 
-/* ══════════════════════════════════════════════════════════
-   3. SCROLL REVEAL + COUNTER ANIMATION
-   ══════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════
+   3. SCROLL REVEAL + COUNTERS + SPEED BARS
+   ══════════════════════════════════════════════════════ */
 const revealEls = document.querySelectorAll('.reveal');
-const io = new IntersectionObserver((entries) => {
+const io = new IntersectionObserver(entries => {
   entries.forEach(e => {
-    if (e.isIntersecting) {
-      e.target.classList.add('visible');
-      io.unobserve(e.target);
-    }
+    if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
   });
 }, { threshold: 0.12 });
 revealEls.forEach(el => io.observe(el));
 
-/* Counter animation */
-const counters = document.querySelectorAll('[data-count]');
-const cio = new IntersectionObserver((entries) => {
-  entries.forEach(e => {
+/* Counter */
+document.querySelectorAll('[data-count]').forEach(el => {
+  const cio = new IntersectionObserver(([e]) => {
     if (!e.isIntersecting) return;
-    const el  = e.target;
     const end = +el.dataset.count;
     const dur = 1800;
-    const start = performance.now();
-    const tick = (now) => {
-      const prog  = Math.min((now - start) / dur, 1);
-      const ease  = 1 - Math.pow(1 - prog, 3);
-      const val   = Math.floor(ease * end);
-      el.textContent = val >= 1000 ? val.toLocaleString('ro-RO') : val;
-      if (prog < 1) requestAnimationFrame(tick);
+    const t0  = performance.now();
+    const tick = now => {
+      const p = Math.min((now - t0) / dur, 1);
+      const v = Math.floor((1 - Math.pow(1 - p, 3)) * end);
+      el.textContent = v >= 1000 ? v.toLocaleString('ro-RO') : v;
+      if (p < 1) requestAnimationFrame(tick);
       else el.textContent = end >= 1000 ? end.toLocaleString('ro-RO') : end;
     };
     requestAnimationFrame(tick);
     cio.unobserve(el);
-  });
-}, { threshold: .5 });
-counters.forEach(c => cio.observe(c));
+  }, { threshold: .5 });
+  cio.observe(el);
+});
+
+/* Speed bars */
+document.querySelectorAll('.speed-fill').forEach(bar => {
+  const sio = new IntersectionObserver(([e]) => {
+    if (!e.isIntersecting) return;
+    bar.style.width = bar.dataset.w + '%';
+    sio.unobserve(bar);
+  }, { threshold: .4 });
+  sio.observe(bar);
+});
 </script>
 </body>
 </html>
