@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arhitectura Neoclasică — Eleganță Eternă</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Raleway:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@1,400;1,600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+<style>
+/* ── Variables ─────────────────────────────────────────────────── */
+:root {
+  --dark:       #060503;
+  --dark2:      #0d0b07;
+  --dark3:      #161009;
+  --gold:       #c9a227;
+  --gold-lt:    #f0c040;
+  --gold-dk:    #7a5f10;
+  --cream:      #f5f0e8;
+  --text:       #cebf9e;
+  --muted:      #7a6a50;
+  --glass:      rgba(20,15,5,.55);
+  --glass-bd:   rgba(201,162,39,.18);
+  --r:          .75rem;
+}
+/* ── Reset ──────────────────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;font-size:16px}
+body{
+  background:var(--dark);
+  color:var(--text);
+  font-family:'Raleway',sans-serif;
+  overflow-x:hidden;
+  cursor:none;
+}
+::selection{background:var(--gold);color:#000}
+/* ── Cursor ─────────────────────────────────────────────────────── */
+#cur,#cur2{
+  position:fixed;top:0;left:0;border-radius:50%;
+  pointer-events:none;z-index:9999;transform:translate(-50%,-50%);
+  transition:opacity .3s;
+}
+#cur{width:12px;height:12px;background:var(--gold-lt);}
+#cur2{
+  width:36px;height:36px;
+  border:1.5px solid rgba(201,162,39,.5);
+  transition:width .25s,height .25s,background .25s;
+}
+/* ── Loader ─────────────────────────────────────────────────────── */
+#loader{
+  position:fixed;inset:0;
+  background:var(--dark);
+  z-index:9998;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  transition:opacity .8s ease, visibility .8s ease;
+}
+#loader.hidden{opacity:0;visibility:hidden;}
+.loader-col{
+  display:flex;gap:1.2rem;margin-bottom:2.5rem;
+}
+.loader-col span{
+  display:block;width:8px;border-radius:4px;
+  background:linear-gradient(to top,var(--gold-dk),var(--gold-lt));
+  animation:colRise 1.4s ease-in-out infinite alternate;
+}
+.loader-col span:nth-child(1){height:60px;animation-delay:0s;}
+.loader-col span:nth-child(2){height:80px;animation-delay:.1s;}
+.loader-col span:nth-child(3){height:100px;animation-delay:.2s;}
+.loader-col span:nth-child(4){height:80px;animation-delay:.3s;}
+.loader-col span:nth-child(5){height:60px;animation-delay:.4s;}
+@keyframes colRise{
+  from{transform:scaleY(.4);opacity:.3;}
+  to{transform:scaleY(1);opacity:1;}
+}
+.loader-text{
+  font-family:'Cinzel',serif;
+  font-size:1.1rem;letter-spacing:.5rem;
+  color:var(--gold);opacity:.7;
+  text-transform:uppercase;
+  animation:pulse 1.5s ease-in-out infinite alternate;
+}
+@keyframes pulse{from{opacity:.3}to{opacity:.9}}
+/* ── Three.js Canvas ─────────────────────────────────────────────── */
+#bg{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  z-index:0;pointer-events:none;
+}
+/* ── Navigation ─────────────────────────────────────────────────── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:1000;
+  padding:.9rem 3rem;
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(6,5,3,.0);
+  backdrop-filter:blur(0);
+  border-bottom:1px solid transparent;
+  transition:all .5s ease;
+}
+nav.scrolled{
+  background:rgba(6,5,3,.85);
+  backdrop-filter:blur(12px);
+  border-bottom-color:rgba(201,162,39,.15);
+}
+.nav-logo{
+  font-family:'Cinzel',serif;
+  font-size:1.05rem;letter-spacing:.2rem;
+  color:var(--gold);text-decoration:none;
+}
+.nav-links{display:flex;gap:2rem;list-style:none;}
+.nav-links a{
+  font-size:.8rem;letter-spacing:.18rem;text-transform:uppercase;
+  color:var(--muted);text-decoration:none;
+  transition:color .3s;
+}
+.nav-links a:hover{color:var(--gold-lt);}
+/* ── HERO ────────────────────────────────────────────────────────── */
+#hero{
+  position:relative;min-height:100vh;
+  display:flex;align-items:center;justify-content:center;
+  text-align:center;z-index:1;overflow:hidden;
+}
+.hero-overlay{
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse 80% 60% at 50% 70%,
+    rgba(201,162,39,.06) 0%, transparent 70%),
+    radial-gradient(ellipse 100% 100% at 50% 100%,
+    rgba(0,0,0,.7) 0%, transparent 60%);
+  pointer-events:none;
+}
+.hero-content{
+  position:relative;z-index:2;padding:0 1rem;
+  max-width:900px;
+}
+.hero-eyebrow{
+  font-family:'Cinzel',serif;
+  font-size:.78rem;letter-spacing:.6rem;
+  color:var(--gold);opacity:0;
+  text-transform:uppercase;margin-bottom:1.8rem;
+  transform:translateY(20px);
+}
+.hero-title{
+  font-family:'Cinzel',serif;
+  font-size:clamp(2.8rem,9vw,8rem);
+  font-weight:900;line-height:1;
+  background:linear-gradient(135deg,#fff 0%,var(--gold-lt) 40%,var(--gold) 70%,#a07520 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+  letter-spacing:.05em;
+  opacity:0;transform:translateY(40px);
+  margin-bottom:.5rem;
+}
+.hero-subtitle{
+  font-family:'Cinzel',serif;
+  font-size:clamp(1.1rem,3vw,2.2rem);
+  font-weight:400;letter-spacing:.35em;
+  color:var(--gold-lt);opacity:0;
+  transform:translateY(30px);margin-bottom:3rem;
+}
+.hero-desc{
+  font-size:.95rem;letter-spacing:.08rem;
+  color:var(--muted);opacity:0;max-width:500px;margin:0 auto 3rem;
+  line-height:1.9;
+}
+.scroll-cue{
+  display:flex;flex-direction:column;align-items:center;
+  gap:.5rem;color:var(--gold);opacity:0;cursor:pointer;
+}
+.scroll-cue span{font-size:.7rem;letter-spacing:.3rem;text-transform:uppercase;}
+.scroll-cue svg{animation:bobDown 1.8s ease-in-out infinite;}
+@keyframes bobDown{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
+/* ornamental line */
+.ornament{
+  display:flex;align-items:center;gap:1.2rem;
+  justify-content:center;margin:2rem 0;
+}
+.ornament hr{flex:1;max-width:80px;border:none;border-top:1px solid var(--gold-dk);}
+.ornament svg{opacity:.6;}
+/* ── Sections generic ─────────────────────────────────────────── */
+section{position:relative;z-index:1;padding:8rem 2rem;}
+.container{max-width:1200px;margin:0 auto;}
+.section-eyebrow{
+  font-family:'Cinzel',serif;
+  font-size:.72rem;letter-spacing:.6rem;
+  color:var(--gold);text-transform:uppercase;
+  margin-bottom:1rem;
+}
+.section-title{
+  font-family:'Cinzel',serif;
+  font-size:clamp(2rem,5vw,4rem);
+  font-weight:700;
+  background:linear-gradient(135deg,var(--cream),var(--gold-lt));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  line-height:1.15;margin-bottom:1.5rem;
+}
+.section-body{
+  font-family:'EB Garamond',serif;
+  font-size:1.2rem;line-height:1.95;
+  color:var(--text);max-width:680px;
+}
+/* ── ABOUT ────────────────────────────────────────────────────── */
+#about{background:linear-gradient(180deg,var(--dark) 0%,var(--dark2) 100%);}
+#about .about-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:6rem;align-items:center;
+}
+@media(max-width:768px){#about .about-grid{grid-template-columns:1fr}}
+.about-visual{display:flex;justify-content:center;align-items:center;}
+/* CSS Temple SVG illustration */
+.temple-wrap{position:relative;width:300px;height:280px;}
+.temple-pediment{
+  width:0;height:0;
+  border-left:150px solid transparent;
+  border-right:150px solid transparent;
+  border-bottom:60px solid rgba(201,162,39,.18);
+  position:absolute;top:0;left:0;
+  filter:drop-shadow(0 0 20px rgba(201,162,39,.3));
+}
+.temple-pediment::before{
+  content:'';position:absolute;top:5px;left:-145px;
+  width:0;height:0;
+  border-left:145px solid transparent;
+  border-right:145px solid transparent;
+  border-bottom:50px solid rgba(201,162,39,.08);
+}
+.temple-entablature{
+  position:absolute;top:56px;left:0;right:0;height:28px;
+  background:linear-gradient(180deg,rgba(201,162,39,.22),rgba(201,162,39,.1));
+  border-top:1px solid rgba(201,162,39,.4);
+}
+.temple-columns{
+  position:absolute;top:84px;left:10px;right:10px;
+  display:flex;justify-content:space-between;
+  height:160px;
+}
+.temple-col{
+  width:22px;
+  background:linear-gradient(to right,rgba(201,162,39,.08),rgba(201,162,39,.25),rgba(201,162,39,.08));
+  border-radius:2px;
+  position:relative;
+  box-shadow:0 0 15px rgba(201,162,39,.1);
+}
+.temple-col::before{
+  content:'';position:absolute;top:-8px;left:-3px;right:-3px;height:10px;
+  background:rgba(201,162,39,.3);border-radius:2px;
+}
+.temple-col::after{
+  content:'';position:absolute;bottom:-8px;left:-3px;right:-3px;height:10px;
+  background:rgba(201,162,39,.3);border-radius:2px;
+}
+.temple-base{
+  position:absolute;bottom:0;left:0;right:0;height:36px;
+  background:linear-gradient(180deg,rgba(201,162,39,.15),rgba(201,162,39,.08));
+  border-top:1px solid rgba(201,162,39,.35);
+}
+.temple-glow{
+  position:absolute;inset:-20px;
+  background:radial-gradient(ellipse at 50% 80%,rgba(201,162,39,.12),transparent 70%);
+  pointer-events:none;
+}
+/* ── PRINCIPII ───────────────────────────────────────────────── */
+#principii{background:var(--dark2);}
+.cards-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:1.8rem;margin-top:4rem;
+}
+.card-3d{perspective:1000px;cursor:pointer;}
+.card-inner{
+  position:relative;
+  width:100%;padding-top:120%;
+  transition:transform .7s cubic-bezier(.4,0,.2,1);
+  transform-style:preserve-3d;
+}
+.card-3d:hover .card-inner{transform:rotateY(180deg);}
+.card-front,.card-back{
+  position:absolute;inset:0;
+  border-radius:var(--r);
+  backface-visibility:hidden;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:2rem 1.5rem;text-align:center;
+  border:1px solid var(--glass-bd);
+  background:var(--glass);backdrop-filter:blur(12px);
+}
+.card-back{
+  transform:rotateY(180deg);
+  background:linear-gradient(135deg,rgba(201,162,39,.15),rgba(30,20,5,.9));
+}
+.card-icon{
+  font-size:3.5rem;margin-bottom:1.2rem;
+  filter:drop-shadow(0 0 12px rgba(201,162,39,.5));
+}
+.card-front h3{
+  font-family:'Cinzel',serif;font-size:1.3rem;
+  color:var(--gold-lt);letter-spacing:.12rem;
+  margin-bottom:.8rem;
+}
+.card-front p,.card-back p{
+  font-family:'EB Garamond',serif;
+  font-size:1.05rem;color:var(--text);line-height:1.7;
+}
+.card-back h3{
+  font-family:'Cinzel',serif;font-size:1.1rem;
+  color:var(--gold-lt);letter-spacing:.1rem;margin-bottom:1rem;
+}
+/* shimmer on cards */
+.card-front::before{
+  content:'';position:absolute;inset:0;border-radius:var(--r);
+  background:linear-gradient(135deg,transparent 40%,rgba(201,162,39,.07) 50%,transparent 60%);
+  background-size:200% 200%;animation:shimmer 3s ease infinite;
+}
+@keyframes shimmer{0%{background-position:200% 200%}100%{background-position:-200% -200%}}
+/* ── MONUMENTE ────────────────────────────────────────────────── */
+#monumente{background:linear-gradient(180deg,var(--dark2) 0%,var(--dark3) 100%);}
+.monuments-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:1.5rem;margin-top:4rem;
+}
+.monument-card{
+  border-radius:var(--r);overflow:hidden;
+  border:1px solid var(--glass-bd);
+  background:var(--dark3);
+  transition:transform .4s ease,box-shadow .4s ease;
+  cursor:default;
+}
+.monument-card:hover{
+  transform:translateY(-10px) scale(1.02);
+  box-shadow:0 30px 60px rgba(0,0,0,.6),0 0 40px rgba(201,162,39,.15);
+}
+.monument-img{
+  width:100%;height:200px;object-fit:cover;
+  display:block;filter:sepia(.25) brightness(.85) contrast(1.1);
+  transition:filter .4s ease;
+}
+.monument-card:hover .monument-img{filter:sepia(.1) brightness(1) contrast(1.1);}
+.monument-img-bg{
+  width:100%;height:200px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:3rem;
+}
+.monument-info{padding:1.4rem 1.6rem;}
+.monument-country{
+  font-size:.68rem;letter-spacing:.35rem;text-transform:uppercase;
+  color:var(--gold);margin-bottom:.4rem;
+}
+.monument-name{
+  font-family:'Cinzel',serif;font-size:1.15rem;
+  color:var(--cream);margin-bottom:.7rem;letter-spacing:.06rem;
+}
+.monument-desc{
+  font-family:'EB Garamond',serif;
+  font-size:1rem;color:var(--muted);line-height:1.65;
+}
+/* ── ROMANIA ─────────────────────────────────────────────────── */
+#romania{
+  background:linear-gradient(135deg,var(--dark3) 0%,#1a0f02 50%,var(--dark3) 100%);
+  border-top:1px solid rgba(201,162,39,.15);
+  border-bottom:1px solid rgba(201,162,39,.15);
+}
+.ro-badge{
+  display:inline-flex;align-items:center;gap:.8rem;
+  background:linear-gradient(135deg,rgba(201,162,39,.2),rgba(201,162,39,.05));
+  border:1px solid rgba(201,162,39,.35);
+  border-radius:100px;padding:.5rem 1.4rem;
+  font-family:'Cinzel',serif;font-size:.8rem;
+  letter-spacing:.3rem;color:var(--gold-lt);
+  margin-bottom:2.5rem;
+}
+.paris-quote{
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:clamp(1.8rem,4vw,3rem);
+  color:var(--gold-lt);text-align:center;
+  padding:4rem 2rem;
+  position:relative;
+  text-shadow:0 0 40px rgba(201,162,39,.3);
+}
+.paris-quote::before,.paris-quote::after{
+  content:'"';font-size:6rem;color:rgba(201,162,39,.15);
+  position:absolute;line-height:1;
+}
+.paris-quote::before{top:.5rem;left:2rem;}
+.paris-quote::after{content:'"';bottom:-1rem;right:2rem;}
+/* ── TIMELINE ────────────────────────────────────────────────── */
+#timeline{background:var(--dark);}
+.timeline{position:relative;padding:2rem 0;}
+.timeline::before{
+  content:'';position:absolute;left:50%;top:0;bottom:0;
+  width:1px;background:linear-gradient(to bottom,transparent,var(--gold-dk),var(--gold),var(--gold-dk),transparent);
+  transform:translateX(-50%);
+}
+@media(max-width:768px){
+  .timeline::before{left:24px;}
+}
+.tl-item{
+  display:flex;justify-content:flex-end;
+  padding-right:calc(50% + 3rem);
+  margin-bottom:4rem;
+  position:relative;
+  opacity:0;transform:translateX(-40px);
+}
+.tl-item:nth-child(even){
+  justify-content:flex-start;
+  padding-right:0;padding-left:calc(50% + 3rem);
+  transform:translateX(40px);
+}
+@media(max-width:768px){
+  .tl-item,.tl-item:nth-child(even){
+    justify-content:flex-start;
+    padding-left:60px;padding-right:0;
+  }
+}
+.tl-dot{
+  position:absolute;left:50%;top:1rem;
+  width:14px;height:14px;
+  background:var(--gold);border-radius:50%;
+  transform:translateX(-50%);
+  box-shadow:0 0 0 4px rgba(201,162,39,.2),0 0 20px var(--gold);
+  z-index:2;
+}
+@media(max-width:768px){.tl-dot{left:24px;}}
+.tl-card{
+  max-width:420px;
+  background:var(--glass);backdrop-filter:blur(10px);
+  border:1px solid var(--glass-bd);border-radius:var(--r);
+  padding:1.6rem 1.8rem;
+}
+.tl-year{
+  font-family:'Cinzel',serif;font-size:.78rem;
+  letter-spacing:.35rem;color:var(--gold);
+  margin-bottom:.5rem;
+}
+.tl-title{
+  font-family:'Cinzel',serif;font-size:1.2rem;
+  color:var(--cream);margin-bottom:.8rem;
+}
+.tl-body{
+  font-family:'EB Garamond',serif;
+  font-size:1rem;color:var(--muted);line-height:1.7;
+}
+/* ── STATS ───────────────────────────────────────────────────── */
+#stats{
+  background:linear-gradient(90deg,var(--dark2),var(--dark3),var(--dark2));
+  padding:6rem 2rem;
+  border-top:1px solid rgba(201,162,39,.1);
+  border-bottom:1px solid rgba(201,162,39,.1);
+}
+.stats-grid{
+  display:flex;justify-content:center;flex-wrap:wrap;gap:4rem;
+}
+.stat-item{text-align:center;}
+.stat-num{
+  font-family:'Cinzel',serif;
+  font-size:clamp(2.5rem,6vw,5rem);font-weight:700;
+  background:linear-gradient(135deg,var(--gold-lt),var(--gold));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  display:block;
+}
+.stat-label{
+  font-size:.75rem;letter-spacing:.35rem;text-transform:uppercase;
+  color:var(--muted);margin-top:.4rem;
+}
+/* ── QUOTE ────────────────────────────────────────────────────── */
+#quote-section{
+  background:var(--dark2);padding:10rem 2rem;text-align:center;
+}
+.big-quote{
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:clamp(1.4rem,3.5vw,2.5rem);
+  color:var(--cream);max-width:900px;margin:0 auto;
+  line-height:1.65;opacity:.85;
+}
+.quote-author{
+  margin-top:2.5rem;
+  font-family:'Cinzel',serif;font-size:.78rem;
+  letter-spacing:.4rem;color:var(--gold);text-transform:uppercase;
+}
+/* ── FOOTER ────────────────────────────────────────────────────── */
+footer{
+  background:var(--dark);
+  padding:5rem 2rem 3rem;
+  border-top:1px solid rgba(201,162,39,.15);
+  text-align:center;
+}
+.footer-logo{
+  font-family:'Cinzel',serif;font-size:1.6rem;
+  background:linear-gradient(135deg,var(--gold-lt),var(--gold));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  letter-spacing:.2rem;margin-bottom:.8rem;
+}
+.footer-sub{
+  font-size:.8rem;letter-spacing:.3rem;
+  color:var(--muted);text-transform:uppercase;margin-bottom:3rem;
+}
+.footer-divider{
+  width:100px;height:1px;
+  background:linear-gradient(to right,transparent,var(--gold-dk),transparent);
+  margin:0 auto 2rem;
+}
+.footer-student{
+  font-family:'EB Garamond',serif;font-style:italic;
+  font-size:1.1rem;color:var(--muted);
+}
+/* ── Reveal animations ──────────────────────────────────────── */
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .8s ease,transform .8s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+/* ── Particles overlay for sections ──────────────────────────── */
+.gold-particle-bg{
+  position:absolute;inset:0;overflow:hidden;pointer-events:none;
+}
+/* ── scrollbar ─────────────────────────────────────────────── */
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-track{background:var(--dark);}
+::-webkit-scrollbar-thumb{background:var(--gold-dk);border-radius:3px;}
+</style>
+</head>
+<body>
+
+<!-- Cursor -->
+<div id="cur"></div>
+<div id="cur2"></div>
+
+<!-- Loader -->
+<div id="loader">
+  <div class="loader-col">
+    <span></span><span></span><span></span><span></span><span></span>
+  </div>
+  <div class="loader-text">Se încarcă…</div>
+</div>
+
+<!-- Three.js canvas -->
+<canvas id="bg"></canvas>
+
+<!-- Navigation -->
+<nav id="nav">
+  <a class="nav-logo" href="#hero">NEOCLASIC</a>
+  <ul class="nav-links">
+    <li><a href="#about">Despre</a></li>
+    <li><a href="#principii">Principii</a></li>
+    <li><a href="#monumente">Monumente</a></li>
+    <li><a href="#romania">România</a></li>
+    <li><a href="#timeline">Istorie</a></li>
+  </ul>
+</nav>
+
+<!-- ═══════════════════════════════ HERO ══════════════════════════ -->
+<section id="hero">
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <p class="hero-eyebrow" id="he1">Modele Estetice în Artă</p>
+    <h1 class="hero-title" id="he2">ARHITECTURA<br>NEOCLASICĂ</h1>
+    <p class="hero-subtitle" id="he3">Eleganță · Ordine · Eternitate</p>
+    <div class="ornament" id="he4" style="opacity:0">
+      <hr>
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <path d="M9 1L11.5 6.5H17L12.5 10L14.5 16L9 12.5L3.5 16L5.5 10L1 6.5H6.5L9 1Z"
+          stroke="#c9a227" stroke-width="1.2" fill="none"/>
+      </svg>
+      <hr>
+    </div>
+    <p class="hero-desc" id="he5">De la templele Atenei Antice la Parisul de pe malurile Dâmboviței — o călătorie în lumea formelor pure, a coloanelor majestuoase și a grandorii eterne.</p>
+    <div class="scroll-cue" id="he6">
+      <span>Explorează</span>
+      <svg width="16" height="22" viewBox="0 0 16 22" fill="none">
+        <path d="M8 1v18M1 13l7 8 7-8" stroke="#c9a227" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════════════════════════ ABOUT ══════════════════════════ -->
+<section id="about">
+  <div class="container">
+    <div class="about-grid">
+      <div>
+        <p class="section-eyebrow reveal">Renașterea Antichității</p>
+        <h2 class="section-title reveal">Ce este Neoclasicismul?</h2>
+        <p class="section-body reveal">
+          În secolele <strong style="color:var(--gold-lt)">XIV–XV</strong>, după o perioadă de uitare, cultura greco-romană a început să strălucească din nou în toate domeniile: artă, arhitectură, literatură, științe. Această perioadă de reînnoire a Antichității este numită <em style="color:var(--gold-lt)">Renaștere</em>.
+        </p>
+        <p class="section-body reveal" style="margin-top:1.4rem">
+          Artiștii și scriitorii Renașterii nu și-au propus o simplă imitare — ci o <strong style="color:var(--gold-lt)">utilizare creativă</strong> a principiilor antice. Spre deosebire de barocul secolului al XVII-lea, neoclasicismul face apel la <em>rațiune</em> și glorifică idealul greco-roman de măreție artistică în forme simple, geometrice.
+        </p>
+      </div>
+      <div class="about-visual reveal">
+        <div class="temple-wrap">
+          <div class="temple-glow"></div>
+          <div class="temple-pediment"></div>
+          <div class="temple-entablature"></div>
+          <div class="temple-columns">
+            <div class="temple-col"></div>
+            <div class="temple-col"></div>
+            <div class="temple-col"></div>
+            <div class="temple-col"></div>
+            <div class="temple-col"></div>
+            <div class="temple-col"></div>
+          </div>
+          <div class="temple-base"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════ PRINCIPII ═════════════════════════ -->
+<section id="principii">
+  <div class="container">
+    <p class="section-eyebrow reveal" style="text-align:center">Fundamentele stilului</p>
+    <h2 class="section-title reveal" style="text-align:center">Principiile Neoclasicismului</h2>
+    <div class="cards-grid">
+
+      <div class="card-3d reveal">
+        <div class="card-inner">
+          <div class="card-front">
+            <div class="card-icon">📐</div>
+            <h3>Claritate</h3>
+            <p>Formele clare, precise și bine definite domină arhitectura neoclasică.</p>
+          </div>
+          <div class="card-back">
+            <h3>Claritate</h3>
+            <p>Fiecare element arhitectural are un scop precis. Nu există ornamente inutile — fiecare linie comunică ordine și rațiune.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-3d reveal">
+        <div class="card-inner">
+          <div class="card-front">
+            <div class="card-icon">⚖️</div>
+            <h3>Simetrie</h3>
+            <p>Echilibrul perfect între cele două jumătăți ale clădirii este esențial.</p>
+          </div>
+          <div class="card-back">
+            <h3>Simetrie</h3>
+            <p>Neoclasicismul preia de la greci și romani fascinația pentru simetrie — axa centrală devine o regulă sacră a compoziției.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-3d reveal">
+        <div class="card-inner">
+          <div class="card-front">
+            <div class="card-icon">🏛️</div>
+            <h3>Coloana</h3>
+            <p>Uzul extins al coloanelor este elementul cel mai reprezentativ al stilului.</p>
+          </div>
+          <div class="card-back">
+            <h3>Ordinele Dorice, Ionice, Corintice</h3>
+            <p>Columnele grecești au fost preluate și reinterpretate în toată Europa, devenind simbolul arhitecturii raționale și al grandorii civice.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-3d reveal">
+        <div class="card-inner">
+          <div class="card-front">
+            <div class="card-icon">📏</div>
+            <h3>Simplitate</h3>
+            <p>Formele geometrice pure înlocuiesc ornamentele complicate ale barocului.</p>
+          </div>
+          <div class="card-back">
+            <h3>Geometrie Pură</h3>
+            <p>Triunghiuri, dreptunghiuri, cercuri — vocabularul neoclasicismului se bazează pe figuri geometrice pure, inspirate din matematica antică.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <p class="section-body reveal" style="margin-top:3rem;text-align:center;max-width:700px;margin-left:auto;margin-right:auto">
+      <em style="color:var(--gold)">„Ordinea, simplitatea și rațiunea"</em> — acestea sunt valorile pe care neoclasicismul le-a împrumutat din Grecia și Roma Antică și le-a dăruit întregii Europe.
+    </p>
+  </div>
+</section>
+
+<!-- ════════════════════════ MONUMENTE MONDIALE ══════════════════ -->
+<section id="monumente">
+  <div class="container">
+    <p class="section-eyebrow reveal" style="text-align:center">Patrimoniul Umanității</p>
+    <h2 class="section-title reveal" style="text-align:center">Capodopere Neoclasice<br>din Lume</h2>
+    <div class="monuments-grid">
+
+      <div class="monument-card reveal">
+        <img class="monument-img"
+          src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/The_Parthenon_in_Athens.jpg/640px-The_Parthenon_in_Athens.jpg"
+          alt="Partenonul, Atena"
+          onerror="this.style.display='none'">
+        <div class="monument-img-bg" style="background:linear-gradient(135deg,#1a1206,#2e2008);display:none" id="fb-parthenon">🏛️</div>
+        <div class="monument-info">
+          <p class="monument-country">Grecia · V î.Hr.</p>
+          <h3 class="monument-name">Partenonul</h3>
+          <p class="monument-desc">Templul zeiței Atena de pe Acropole — prototipul absolut al arhitecturii clasice. 46 de coloane dorice perfecte.</p>
+        </div>
+      </div>
+
+      <div class="monument-card reveal">
+        <img class="monument-img"
+          src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Pantheon_Rome_2005may13.jpg/640px-Pantheon_Rome_2005may13.jpg"
+          alt="Panteonul, Roma"
+          onerror="this.style.display='none'">
+        <div class="monument-info">
+          <p class="monument-country">Italia · 125 d.Hr.</p>
+          <h3 class="monument-name">Panteonul din Roma</h3>
+          <p class="monument-desc">Cupolă genială de 43 m diametru, model pentru toate cupolele neoclasice ulterioare. „Ochiul" cerului — oculus.</p>
+        </div>
+      </div>
+
+      <div class="monument-card reveal">
+        <img class="monument-img"
+          src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/Palace_of_Versailles_from_the_forecourt.jpg/640px-Palace_of_Versailles_from_the_forecourt.jpg"
+          alt="Palatul Versailles"
+          onerror="this.style.display='none'">
+        <div class="monument-info">
+          <p class="monument-country">Franța · 1682</p>
+          <h3 class="monument-name">Palatul Versailles</h3>
+          <p class="monument-desc">Simbolul absolutismului francez și al clasicismului regal. Inspirație directă pentru arhitectura neoclasică din toată Europa.</p>
+        </div>
+      </div>
+
+      <div class="monument-card reveal">
+        <img class="monument-img"
+          src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Brandenburger_Tor_nachts.jpg/640px-Brandenburger_Tor_nachts.jpg"
+          alt="Poarta Brandenburg"
+          onerror="this.style.display='none'">
+        <div class="monument-info">
+          <p class="monument-country">Germania · 1791</p>
+          <h3 class="monument-name">Poarta Brandenburg</h3>
+          <p class="monument-desc">Inspirată de Propileele din Atena, cu 12 coloane dorice. Symbol al Berlinului și al unității europene.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════ ROMÂNIA ═════════════════════════ -->
+<section id="romania">
+  <div class="container">
+    <div style="display:flex;flex-direction:column;align-items:center;text-align:center;margin-bottom:5rem">
+      <div class="ro-badge reveal">
+        <span>🇷🇴</span> România Neoclasică
+      </div>
+      <h2 class="section-title reveal">Micul Paris al Europei</h2>
+      <p class="section-body reveal" style="max-width:700px">
+        Centrele marilor orașe românești sunt dominate de clădiri în stil neoclasic. Arhitectura capitalei s-a dezvoltat pregnant sub influența școlii franceze neoclasice, Bucureștiului fiindu-i supranumit <strong style="color:var(--gold-lt)">„Micul Paris"</strong>.
+      </p>
+    </div>
+
+    <div class="monuments-grid">
+
+      <div class="monument-card reveal">
+        <img class="monument-img"
+          src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Ateneu_Roman_vedere_frontala.jpg/640px-Ateneu_Roman_vedere_frontala.jpg"
+          alt="Ateneul Român"
+          onerror="this.style.display='none'">
+        <div class="monument-info">
+          <p class="monument-country">București · 1888</p>
+          <h3 class="monument-name">Ateneul Român</h3>
+          <p class="monument-desc">Bijuteria arhitecturală a Bucureștiului — rotondă neoclasică cu colonadă ionică. Simbol al culturii române.</p>
+        </div>
+      </div>
+
+      <div class="monument-card reveal">
+        <div class="monument-img-bg" style="background:linear-gradient(135deg,#1a1206,#2e2008)">🏛️</div>
+        <div class="monument-info">
+          <p class="monument-country">Iași · 1832</p>
+          <h3 class="monument-name">Palatul Roznovanu</h3>
+          <p class="monument-desc">Sediul actualei Primării a Iașului — exemplu strălucit al neoclasicismului provincial românesc, cu fațadă simetrică impunătoare.</p>
+        </div>
+      </div>
+
+      <div class="monument-card reveal">
+        <div class="monument-img-bg" style="background:linear-gradient(135deg,#180f06,#281808)">🎭</div>
+        <div class="monument-info">
+          <p class="monument-country">Arad</p>
+          <h3 class="monument-name">Teatrul „Ioan Slavici"</h3>
+          <p class="monument-desc">Teatrul Clasic „Ioan Slavici" din Arad, monument de arhitectură neoclasică, martor al vieții culturale arădene.</p>
+        </div>
+      </div>
+
+      <div class="monument-card reveal">
+        <div class="monument-img-bg" style="background:linear-gradient(135deg,#141006,#22180a)">🏦</div>
+        <div class="monument-info">
+          <p class="monument-country">Drobeta-Turnu Severin</p>
+          <h3 class="monument-name">Casa Culturală „Teodor Costescu"</h3>
+          <p class="monument-desc">Monument neoclasic impunător din Drobeta-Turnu Severin — simbol al aspirațiilor culturale ale orașului.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="paris-quote reveal">
+      București — <em>Micul Paris</em>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════ STATS ═══════════════════════════ -->
+<section id="stats">
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-item reveal">
+        <span class="stat-num" data-target="2500">0</span>
+        <span class="stat-label">Ani de Influență</span>
+      </div>
+      <div class="stat-item reveal">
+        <span class="stat-num" data-target="46">0</span>
+        <span class="stat-label">Coloane — Partenon</span>
+      </div>
+      <div class="stat-item reveal">
+        <span class="stat-num" data-target="43">0</span>
+        <span class="stat-label">Metri — Cupola Panteonului</span>
+      </div>
+      <div class="stat-item reveal">
+        <span class="stat-num" data-target="3">0</span>
+        <span class="stat-label">Ordine Clasice</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ TIMELINE ═════════════════════════ -->
+<section id="timeline">
+  <div class="container">
+    <p class="section-eyebrow reveal" style="text-align:center">Cronologie</p>
+    <h2 class="section-title reveal" style="text-align:center">Istoria Neoclasicismului</h2>
+    <div class="timeline" style="margin-top:5rem">
+
+      <div class="tl-item" id="tl1">
+        <div class="tl-dot"></div>
+        <div class="tl-card">
+          <p class="tl-year">Secol V î.Hr.</p>
+          <h3 class="tl-title">Grecia Clasică</h3>
+          <p class="tl-body">Construcția Partenonului pe Acropole. Arhitectura greacă definește canoanele clasice: coloana, frontoanele triunghiulare, simetria perfectă.</p>
+        </div>
+      </div>
+
+      <div class="tl-item" id="tl2">
+        <div class="tl-dot"></div>
+        <div class="tl-card">
+          <p class="tl-year">Sec. XIV – XV</p>
+          <h3 class="tl-title">Renașterea</h3>
+          <p class="tl-body">Cultura greco-romană reapare în toată Europa. Artiștii și arhitecții redescoperă antichitatea — nu pentru a o copia, ci pentru a o reinterpreta creativ.</p>
+        </div>
+      </div>
+
+      <div class="tl-item" id="tl3">
+        <div class="tl-dot"></div>
+        <div class="tl-card">
+          <p class="tl-year">Sec. XVII</p>
+          <h3 class="tl-title">Baroc vs. Clasicism</h3>
+          <p class="tl-body">Europa e dominată de baroc — libertar, exuberant. Franța rezistă: caută rigoarea tradițională a lumii greco-romane. Naște clasicismul — precursorul neoclasicismului.</p>
+        </div>
+      </div>
+
+      <div class="tl-item" id="tl4">
+        <div class="tl-dot"></div>
+        <div class="tl-card">
+          <p class="tl-year">Sec. XVIII</p>
+          <h3 class="tl-title">Expansiunea Neoclasicismului</h3>
+          <p class="tl-body">Curentul se răspândește în toată Europa. Poarta Brandenburg din Berlin, Capitol-ul din Washington, Panteonul din Paris — monumentele epocii Iluminismului.</p>
+        </div>
+      </div>
+
+      <div class="tl-item" id="tl5">
+        <div class="tl-dot"></div>
+        <div class="tl-card">
+          <p class="tl-year">Sec. XIX</p>
+          <h3 class="tl-title">România — Micul Paris</h3>
+          <p class="tl-body">Arhitectura românească se dezvoltă sub influența școlii franceze neoclasice. Ateneul Român, Palatul CEC, Palatul Roznovanu — România îmbrățișează eleganța neoclasică.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════ CITAT ═════════════════════════════ -->
+<section id="quote-section">
+  <div class="container">
+    <p class="big-quote reveal">
+      Frumusețea este adevăr, adevărul este frumusețe — aceasta este tot ce știi pe pământ și tot ce trebuie să știi.
+    </p>
+    <p class="quote-author reveal">John Keats · „Odă pe o urnă grecească"</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ FOOTER ═══════════════════════════ -->
+<footer>
+  <div class="footer-logo">ARHITECTURA NEOCLASICĂ</div>
+  <p class="footer-sub">Modele Estetice în Artă</p>
+  <div class="footer-divider"></div>
+  <p class="footer-student">Gligor Ștefan Albert · Clasa 7D</p>
+  <p style="margin-top:.5rem;font-size:.75rem;letter-spacing:.2rem;color:var(--muted);opacity:.5">MMXXVI</p>
+</footer>
+
+<!-- ═══════════════════════ SCRIPTS ══════════════════════════════ -->
+<script>
+/* ── 1. THREE.JS SCENE ──────────────────────────────────────── */
+(function () {
+  const canvas = document.getElementById('bg');
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.8));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+
+  const scene = new THREE.Scene();
+  scene.fog = new THREE.FogExp2(0x060503, 0.022);
+
+  const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 120);
+  camera.position.set(0, 2, 18);
+
+  /* Lights */
+  const ambient = new THREE.AmbientLight(0xfff0d0, 0.35);
+  scene.add(ambient);
+  const gold1 = new THREE.PointLight(0xffd700, 3.5, 40);
+  gold1.position.set(5, 8, 5);
+  scene.add(gold1);
+  const gold2 = new THREE.PointLight(0xffa020, 2, 30);
+  gold2.position.set(-8, 4, -6);
+  scene.add(gold2);
+  const blue = new THREE.PointLight(0x204080, 1, 20);
+  blue.position.set(0, -4, 10);
+  scene.add(blue);
+
+  /* Marble texture (procedural canvas) */
+  function makeMarbleTex () {
+    const c = document.createElement('canvas');
+    c.width = c.height = 256;
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = '#e8d8b0';
+    ctx.fillRect(0, 0, 256, 256);
+    for (let i = 0; i < 18; i++) {
+      ctx.beginPath();
+      const x0 = Math.random() * 256, y0 = Math.random() * 256;
+      const x1 = x0 + (Math.random() - .5) * 80;
+      const y1 = y0 + (Math.random() - .5) * 80;
+      ctx.moveTo(x0, y0); ctx.lineTo(x1, y1);
+      ctx.strokeStyle = `rgba(${100 + Math.random() * 60},${80 + Math.random() * 40},${30 + Math.random() * 30},${0.06 + Math.random() * 0.1})`;
+      ctx.lineWidth = .5 + Math.random() * 1.5;
+      ctx.stroke();
+    }
+    return new THREE.CanvasTexture(c);
+  }
+  const marbleTex = makeMarbleTex();
+
+  const colMat = new THREE.MeshPhongMaterial({
+    map: marbleTex, color: 0xd4c090, shininess: 120, specular: 0xffd700
+  });
+
+  /* Doric columns */
+  const columns = [];
+  const columnPositions = [
+    [-8, -3, -8], [-4, -3, -10], [0, -3, -12], [4, -3, -10], [8, -3, -8],
+    [-12, -3, -4], [12, -3, -4], [-10, -3, 0], [10, -3, 0],
+    [-6, -3, -6], [6, -3, -6], [-14, -3, -10], [14, -3, -10],
+    [-2, -3, -18], [2, -3, -18],
+  ];
+  columnPositions.forEach(([x, y, z]) => {
+    const shaft = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.28, 0.34, 7, 10),
+      colMat
+    );
+    shaft.position.set(x, y, z);
+    scene.add(shaft);
+
+    /* capital */
+    const capital = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.5, 0.32, 0.5, 10),
+      colMat
+    );
+    capital.position.set(x, y + 3.7, z);
+    scene.add(capital);
+
+    /* abacus */
+    const abacus = new THREE.Mesh(
+      new THREE.BoxGeometry(0.9, 0.2, 0.9),
+      colMat
+    );
+    abacus.position.set(x, y + 4.0, z);
+    scene.add(abacus);
+
+    columns.push({ shaft, capital, abacus, ox: x, oz: z, phase: Math.random() * Math.PI * 2 });
+  });
+
+  /* Floor plane */
+  const floorMat = new THREE.MeshPhongMaterial({
+    map: makeMarbleTex(), color: 0xb09060, shininess: 60, transparent: true, opacity: .55
+  });
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(80, 80, 1, 1), floorMat);
+  floor.rotation.x = -Math.PI / 2;
+  floor.position.y = -6.5;
+  scene.add(floor);
+
+  /* Gold particles */
+  const POS = [], CLR = [];
+  for (let i = 0; i < 2800; i++) {
+    POS.push((Math.random() - .5) * 60, (Math.random() - .5) * 30, (Math.random() - .5) * 40 - 10);
+    const b = .6 + Math.random() * .4;
+    CLR.push(b, b * .78, 0);
+  }
+  const partGeo = new THREE.BufferGeometry();
+  partGeo.setAttribute('position', new THREE.Float32BufferAttribute(POS, 3));
+  partGeo.setAttribute('color', new THREE.Float32BufferAttribute(CLR, 3));
+  const partMat = new THREE.PointsMaterial({ size: .07, vertexColors: true, transparent: true, opacity: .8 });
+  const particles = new THREE.Points(partGeo, partMat);
+  scene.add(particles);
+
+  /* Mouse parallax */
+  let mx = 0, my = 0;
+  document.addEventListener('mousemove', e => {
+    mx = (e.clientX / window.innerWidth - .5) * 2;
+    my = (e.clientY / window.innerHeight - .5) * 2;
+  });
+
+  /* Scroll dim */
+  let scrollY = 0;
+  window.addEventListener('scroll', () => { scrollY = window.scrollY; });
+
+  /* Resize */
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+  /* Animate */
+  const clock = new THREE.Clock();
+  function animate () {
+    requestAnimationFrame(animate);
+    const t = clock.getElapsedTime();
+
+    camera.position.x += (mx * 2.5 - camera.position.x) * .03;
+    camera.position.y += (-my * 1.5 + 2 - camera.position.y) * .03;
+    camera.lookAt(0, 0, -5);
+
+    columns.forEach(c => {
+      const sway = Math.sin(t * .4 + c.phase) * .0015;
+      c.shaft.rotation.z = sway;
+      c.capital.rotation.z = sway;
+      c.abacus.rotation.z = sway;
+    });
+
+    /* drift particles */
+    const pos = partGeo.attributes.position.array;
+    for (let i = 1; i < pos.length; i += 3) {
+      pos[i] += 0.006;
+      if (pos[i] > 15) pos[i] = -15;
+    }
+    partGeo.attributes.position.needsUpdate = true;
+
+    particles.rotation.y = t * .015;
+
+    const fade = Math.max(0, 1 - scrollY / (window.innerHeight * 2));
+    renderer.domElement.style.opacity = fade;
+
+    renderer.render(scene, camera);
+  }
+  animate();
+})();
+
+/* ── 2. CURSOR ─────────────────────────────────────────────── */
+const cur = document.getElementById('cur');
+const cur2 = document.getElementById('cur2');
+let cx = 0, cy = 0, cx2 = 0, cy2 = 0;
+document.addEventListener('mousemove', e => { cx = e.clientX; cy = e.clientY; });
+(function curLoop () {
+  cx2 += (cx - cx2) * .12;
+  cy2 += (cy - cy2) * .12;
+  cur.style.transform = `translate(${cx}px,${cy}px) translate(-50%,-50%)`;
+  cur2.style.transform = `translate(${cx2}px,${cy2}px) translate(-50%,-50%)`;
+  requestAnimationFrame(curLoop);
+})();
+document.querySelectorAll('a,button,.card-3d,.monument-card,.scroll-cue').forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    cur2.style.width = '56px'; cur2.style.height = '56px';
+    cur2.style.background = 'rgba(201,162,39,.1)';
+  });
+  el.addEventListener('mouseleave', () => {
+    cur2.style.width = '36px'; cur2.style.height = '36px';
+    cur2.style.background = '';
+  });
+});
+
+/* ── 3. LOADER ─────────────────────────────────────────────── */
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('loader').classList.add('hidden');
+    heroAnim();
+  }, 1200);
+});
+
+/* ── 4. HERO ANIMATION ─────────────────────────────────────── */
+function heroAnim () {
+  const tl = gsap.timeline();
+  tl.to('#he1', { opacity: 1, y: 0, duration: .9, ease: 'power3.out' })
+    .to('#he2', { opacity: 1, y: 0, duration: 1.1, ease: 'power3.out' }, '-=.4')
+    .to('#he3', { opacity: 1, y: 0, duration: .9, ease: 'power3.out' }, '-=.5')
+    .to('#he4', { opacity: 1, duration: .7 }, '-=.3')
+    .to('#he5', { opacity: 1, y: 0, duration: .8, ease: 'power3.out' }, '-=.3')
+    .to('#he6', { opacity: 1, duration: .7 }, '-=.2');
+}
+
+/* ── 5. SCROLL REVEAL ──────────────────────────────────────── */
+gsap.registerPlugin(ScrollTrigger);
+
+document.querySelectorAll('.reveal').forEach(el => {
+  ScrollTrigger.create({
+    trigger: el,
+    start: 'top 88%',
+    onEnter: () => el.classList.add('visible'),
+  });
+});
+
+/* ── 6. TIMELINE ITEMS ─────────────────────────────────────── */
+[1, 2, 3, 4, 5].forEach(i => {
+  const el = document.getElementById(`tl${i}`);
+  if (!el) return;
+  ScrollTrigger.create({
+    trigger: el,
+    start: 'top 85%',
+    onEnter: () => {
+      gsap.to(el, { opacity: 1, x: 0, duration: .8, ease: 'power3.out' });
+    }
+  });
+});
+
+/* ── 7. STAT COUNTERS ──────────────────────────────────────── */
+document.querySelectorAll('.stat-num').forEach(el => {
+  const target = +el.dataset.target;
+  ScrollTrigger.create({
+    trigger: el,
+    start: 'top 90%',
+    once: true,
+    onEnter: () => {
+      gsap.to({ val: 0 }, {
+        val: target, duration: 2.2,
+        ease: 'power2.out',
+        onUpdate: function () {
+          el.textContent = Math.round(this.targets()[0].val).toLocaleString('ro-RO');
+        }
+      });
+    }
+  });
+});
+
+/* ── 8. NAV SCROLL ─────────────────────────────────────────── */
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 60);
+});
+
+/* ── 9. SMOOTH NAV LINKS ─────────────────────────────────────── */
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth' }); }
+  });
+});
+
+/* ── 10. FIX IMG FALLBACKS ─────────────────────────────────── */
+document.querySelectorAll('.monument-img').forEach(img => {
+  img.addEventListener('error', () => {
+    img.style.display = 'none';
+    const fb = img.nextElementSibling;
+    if (fb && fb.classList.contains('monument-img-bg')) {
+      fb.style.display = 'flex';
+    }
+  });
+});
+</script>
+</body>
+</html>
