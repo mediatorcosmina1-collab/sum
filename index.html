@@ -1,0 +1,1879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>MasterTuner — E-Scooter BLE Tuner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Saira+Condensed:wght@600;700;800&family=Saira:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   1. DESIGN TOKENS + BASE CSS
+   ============================================================ */
+:root {
+  --bg-0:#0a0b0d;
+  --bg-1:#111317;
+  --bg-2:#181b21;
+  --line:#23272f;
+  --carbon:repeating-linear-gradient(45deg,#0e0f12 0 2px,#0a0b0d 2px 4px);
+
+  --txt-0:#f2f4f7;
+  --txt-1:#9aa3af;
+  --txt-2:#5b626d;
+
+  --acid:#c6ff2e;
+  --acid-dim:#7d9e1c;
+  --danger:#ff2e63;
+  --warn:#ff9f1c;
+  --info:#2ee6ff;
+
+  --glow-acid:0 0 0 1px rgba(198,255,46,.35),0 0 24px rgba(198,255,46,.25);
+  --glow-danger:0 0 0 1px rgba(255,46,99,.4),0 0 24px rgba(255,46,99,.3);
+
+  --radius:14px;
+  --radius-sm:9px;
+  --pad:16px;
+  --ease:cubic-bezier(.2,.8,.2,1);
+}
+
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+
+html,body {
+  height:100%;
+  background:var(--bg-0);
+  color:var(--txt-0);
+  font-family:'Saira',sans-serif;
+  font-size:15px;
+  line-height:1.4;
+  -webkit-font-smoothing:antialiased;
+  overflow:hidden;
+}
+
+#app {
+  width:100%;
+  max-width:430px;
+  height:100dvh;
+  margin:0 auto;
+  position:relative;
+  overflow:hidden;
+  background:var(--bg-0);
+  background-image:var(--carbon);
+}
+
+/* Phone frame on desktop */
+@media(min-width:600px){
+  body { display:flex; align-items:center; justify-content:center; background:#06070a; }
+  #app { height:844px; border-radius:40px; border:1px solid var(--line); box-shadow:0 40px 120px rgba(0,0,0,.8); overflow:hidden; }
+}
+
+/* Radial glow overlay */
+#app::before {
+  content:'';
+  position:absolute;
+  top:-120px; left:50%;
+  transform:translateX(-50%);
+  width:400px; height:300px;
+  background:radial-gradient(ellipse,rgba(198,255,46,.06) 0%,transparent 70%);
+  pointer-events:none;
+  z-index:0;
+}
+
+/* Screen container */
+.screen {
+  position:absolute;
+  inset:0;
+  display:flex;
+  flex-direction:column;
+  overflow-y:auto;
+  overflow-x:hidden;
+  z-index:1;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity 180ms var(--ease), transform 220ms var(--ease);
+  transform:translateX(30px);
+}
+.screen.active {
+  opacity:1;
+  pointer-events:all;
+  transform:translateX(0);
+}
+.screen.exit-left {
+  opacity:0;
+  transform:translateX(-30px);
+}
+
+/* Typography */
+.font-mono { font-family:'JetBrains Mono',monospace; }
+.font-head { font-family:'Saira Condensed','Saira',sans-serif; font-weight:800; letter-spacing:.03em; text-transform:uppercase; }
+
+/* Buttons */
+.btn {
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  padding:14px 24px;
+  border:none; border-radius:var(--radius-sm);
+  font-family:'Saira Condensed','Saira',sans-serif;
+  font-weight:700; font-size:15px; letter-spacing:.08em; text-transform:uppercase;
+  cursor:pointer;
+  transition:all 140ms var(--ease);
+  position:relative; overflow:hidden;
+  user-select:none;
+  -webkit-tap-highlight-color:transparent;
+}
+.btn:active { transform:scale(.97); }
+.btn-acid { background:var(--acid); color:#0a0b0d; }
+.btn-acid:hover { background:#d4ff5a; box-shadow:var(--glow-acid); }
+.btn-acid:disabled { background:var(--acid-dim); color:#3a4a0a; cursor:not-allowed; }
+.btn-ghost { background:transparent; color:var(--txt-1); border:1px solid var(--line); }
+.btn-ghost:hover { border-color:var(--acid); color:var(--acid); }
+.btn-danger { background:var(--danger); color:#fff; }
+.btn-danger:hover { box-shadow:var(--glow-danger); }
+.btn-full { width:100%; }
+
+/* Toggle */
+.toggle-wrap { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.toggle {
+  width:48px; height:26px;
+  background:var(--bg-2); border:1px solid var(--line);
+  border-radius:999px;
+  position:relative; cursor:pointer;
+  transition:background 200ms var(--ease), border-color 200ms var(--ease), box-shadow 200ms var(--ease);
+  flex-shrink:0;
+  -webkit-tap-highlight-color:transparent;
+}
+.toggle::after {
+  content:'';
+  position:absolute;
+  top:3px; left:3px;
+  width:18px; height:18px;
+  background:var(--txt-2);
+  border-radius:50%;
+  transition:transform 200ms cubic-bezier(.2,.8,.2,1.4), background 200ms;
+}
+.toggle.on { background:rgba(198,255,46,.15); border-color:var(--acid); box-shadow:var(--glow-acid); }
+.toggle.on::after { transform:translateX(22px); background:var(--acid); }
+.toggle.danger-on { background:rgba(255,46,99,.15); border-color:var(--danger); box-shadow:var(--glow-danger); }
+.toggle.danger-on::after { transform:translateX(22px); background:var(--danger); }
+
+/* Slider */
+.range-wrap { display:flex; flex-direction:column; gap:6px; }
+.range-label { display:flex; justify-content:space-between; font-size:12px; color:var(--txt-2); font-family:'JetBrains Mono',monospace; }
+input[type=range] {
+  -webkit-appearance:none; appearance:none;
+  width:100%; height:4px; border-radius:2px;
+  background:var(--bg-2); outline:none; cursor:pointer;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance:none; appearance:none;
+  width:18px; height:18px;
+  border-radius:50%;
+  background:var(--acid);
+  box-shadow:0 0 0 3px rgba(198,255,46,.2);
+  cursor:pointer;
+  transition:box-shadow 140ms;
+}
+input[type=range]::-webkit-slider-thumb:active { box-shadow:0 0 0 6px rgba(198,255,46,.3); }
+input[type=range].danger::-webkit-slider-thumb { background:var(--danger); box-shadow:0 0 0 3px rgba(255,46,99,.2); }
+
+/* Cards */
+.card {
+  background:var(--bg-1);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:var(--pad);
+  transition:border-color 200ms, box-shadow 200ms;
+}
+.card.flash-acid {
+  animation:flashAcid 350ms var(--ease);
+}
+.card.flash-danger {
+  animation:flashDanger 350ms var(--ease);
+}
+@keyframes flashAcid {
+  0%,100%{ border-color:var(--line); box-shadow:none; }
+  40%{ border-color:var(--acid); box-shadow:var(--glow-acid); }
+}
+@keyframes flashDanger {
+  0%,100%{ border-color:var(--line); box-shadow:none; }
+  40%{ border-color:var(--danger); box-shadow:var(--glow-danger); }
+}
+
+/* LED */
+.led {
+  width:8px; height:8px; border-radius:50%;
+  background:var(--txt-2);
+  flex-shrink:0;
+  transition:background 200ms, box-shadow 200ms;
+}
+.led.ok { background:var(--acid); box-shadow:0 0 6px var(--acid); }
+.led.writing { background:var(--warn); box-shadow:0 0 6px var(--warn); animation:ledPulse 400ms ease-in-out infinite alternate; }
+.led.nak { background:var(--danger); box-shadow:0 0 6px var(--danger); }
+@keyframes ledPulse { from{opacity:.5} to{opacity:1} }
+
+/* Scrollbar */
+::-webkit-scrollbar { width:3px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--line); border-radius:2px; }
+
+/* Reduce motion */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after { animation-duration:.001ms!important; transition-duration:.001ms!important; }
+}
+
+/* ============================================================
+   STATUS BAR
+   ============================================================ */
+#status-bar {
+  position:absolute;
+  top:0; left:0; right:0;
+  z-index:100;
+  background:linear-gradient(to bottom,var(--bg-0) 70%,transparent);
+  padding:12px var(--pad) 8px;
+  display:none;
+  align-items:center;
+  gap:10px;
+}
+#status-bar.visible { display:flex; }
+.chain-mini { display:flex; gap:3px; }
+.chain-dot {
+  width:7px; height:7px; border-radius:50%;
+  background:var(--txt-2);
+  transition:background 300ms, box-shadow 300ms;
+}
+.chain-dot.lit { background:var(--acid); box-shadow:0 0 6px var(--acid); }
+.status-model { font-family:'Saira Condensed',sans-serif; font-weight:700; font-size:13px; letter-spacing:.06em; text-transform:uppercase; color:var(--txt-0); flex:1; margin-left:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.status-bits { display:flex; align-items:center; gap:8px; margin-left:auto; }
+.status-batt, .status-rssi { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--txt-1); }
+.kebab-btn { width:32px; height:32px; display:flex; align-items:center; justify-content:center; background:transparent; border:none; cursor:pointer; color:var(--txt-2); padding:0; border-radius:8px; }
+.kebab-btn:hover { color:var(--txt-0); background:var(--bg-2); }
+.kebab-menu {
+  position:absolute; top:52px; right:12px;
+  background:var(--bg-1); border:1px solid var(--line);
+  border-radius:var(--radius-sm); overflow:hidden;
+  box-shadow:0 8px 32px rgba(0,0,0,.6);
+  z-index:200;
+  display:none;
+}
+.kebab-menu.open { display:block; }
+.kebab-item { display:block; width:100%; padding:12px 20px; background:transparent; border:none; color:var(--txt-1); text-align:left; font-family:'Saira',sans-serif; font-size:14px; cursor:pointer; white-space:nowrap; }
+.kebab-item:hover { background:var(--bg-2); color:var(--txt-0); }
+.kebab-item.danger { color:var(--danger); }
+
+/* ============================================================
+   SPLASH SCREEN
+   ============================================================ */
+#screen-splash {
+  align-items:center; justify-content:center;
+  background:var(--bg-0);
+  padding:40px var(--pad);
+  gap:0;
+}
+.splash-logo {
+  font-family:'Saira Condensed',sans-serif;
+  font-weight:800; font-size:clamp(42px,10vw,56px);
+  letter-spacing:.12em; text-transform:uppercase;
+  color:var(--txt-0);
+  text-align:center;
+  position:relative;
+  overflow:hidden;
+  padding:4px 0;
+}
+.splash-logo::after {
+  content:'';
+  position:absolute;
+  top:0; left:-120%;
+  width:80%; height:100%;
+  background:linear-gradient(90deg,transparent,rgba(198,255,46,.6),transparent);
+  animation:sweepGlow 1.8s ease-out .4s forwards;
+}
+@keyframes sweepGlow {
+  0%{ left:-120%; }
+  100%{ left:120%; }
+}
+.splash-tagline {
+  font-family:'Saira',sans-serif; font-weight:400; font-size:14px;
+  color:var(--txt-1); letter-spacing:.15em; text-transform:uppercase;
+  margin-top:10px; margin-bottom:60px; text-align:center;
+}
+.splash-btns { display:flex; flex-direction:column; gap:12px; width:100%; max-width:280px; }
+.splash-version {
+  position:absolute; bottom:24px; left:50%; transform:translateX(-50%);
+  font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--txt-2);
+  letter-spacing:.1em; white-space:nowrap;
+}
+
+/* ============================================================
+   BRAND SCREEN
+   ============================================================ */
+#screen-brand { padding:60px var(--pad) var(--pad); gap:16px; }
+.screen-header { display:flex; align-items:center; gap:12px; }
+.back-btn { width:36px; height:36px; display:flex; align-items:center; justify-content:center; background:var(--bg-2); border:none; border-radius:var(--radius-sm); cursor:pointer; color:var(--txt-1); flex-shrink:0; }
+.back-btn:hover { color:var(--txt-0); }
+.step-info { display:flex; flex-direction:column; }
+.step-title { font-family:'Saira Condensed',sans-serif; font-weight:700; font-size:18px; letter-spacing:.06em; text-transform:uppercase; color:var(--txt-0); }
+.step-num { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--txt-2); margin-top:2px; }
+.search-field {
+  display:flex; align-items:center; gap:10px;
+  background:var(--bg-2); border:1px solid var(--line); border-radius:var(--radius-sm);
+  padding:10px 14px;
+}
+.search-field input {
+  flex:1; background:transparent; border:none; outline:none;
+  color:var(--txt-0); font-family:'Saira',sans-serif; font-size:14px;
+}
+.search-field input::placeholder { color:var(--txt-2); }
+.brand-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding-bottom:20px; }
+.brand-card {
+  background:var(--bg-1); border:1px solid var(--line);
+  border-radius:var(--radius); padding:14px;
+  cursor:pointer; transition:border-color 140ms, box-shadow 140ms;
+  display:flex; flex-direction:column; gap:10px;
+  -webkit-tap-highlight-color:transparent;
+}
+.brand-card:hover,.brand-card:active { border-color:var(--acid); box-shadow:var(--glow-acid); }
+.brand-monogram {
+  width:42px; height:42px; border-radius:50%;
+  background:rgba(198,255,46,.12); border:1px solid rgba(198,255,46,.25);
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Saira Condensed',sans-serif; font-weight:800; font-size:16px;
+  color:var(--acid); letter-spacing:.02em;
+}
+.brand-name { font-family:'Saira Condensed',sans-serif; font-weight:700; font-size:15px; letter-spacing:.04em; text-transform:uppercase; color:var(--txt-0); }
+.brand-count { font-size:12px; color:var(--txt-2); }
+
+/* ============================================================
+   MODEL SCREEN
+   ============================================================ */
+#screen-model { padding:60px var(--pad) var(--pad); gap:16px; }
+.model-list { display:flex; flex-direction:column; gap:8px; padding-bottom:20px; }
+.model-row {
+  background:var(--bg-1); border:1px solid var(--line);
+  border-radius:var(--radius); padding:14px var(--pad);
+  cursor:pointer; transition:border-color 140ms, box-shadow 140ms;
+  display:flex; align-items:center; gap:12px;
+  -webkit-tap-highlight-color:transparent;
+}
+.model-row:hover,.model-row:active { border-color:var(--acid); box-shadow:var(--glow-acid); }
+.model-info { flex:1; }
+.model-name { font-family:'Saira Condensed',sans-serif; font-weight:700; font-size:16px; letter-spacing:.04em; text-transform:uppercase; }
+.model-chips { display:flex; flex-wrap:wrap; gap:5px; margin-top:6px; }
+.chip {
+  font-family:'JetBrains Mono',monospace; font-size:10px;
+  padding:3px 7px; border-radius:4px;
+  background:var(--bg-2); color:var(--txt-2); border:1px solid var(--line);
+  white-space:nowrap;
+}
+.chip.accent { background:rgba(198,255,46,.1); color:var(--acid); border-color:rgba(198,255,46,.2); }
+.chevron { color:var(--txt-2); }
+
+/* Spec sheet drawer */
+.drawer-overlay {
+  position:absolute; inset:0; z-index:300;
+  background:rgba(0,0,0,.6);
+  opacity:0; pointer-events:none;
+  transition:opacity 220ms;
+}
+.drawer-overlay.open { opacity:1; pointer-events:all; }
+.drawer {
+  position:absolute; bottom:0; left:0; right:0;
+  background:var(--bg-1); border-top:1px solid var(--line);
+  border-radius:var(--radius) var(--radius) 0 0;
+  padding:var(--pad);
+  transform:translateY(100%);
+  transition:transform 280ms cubic-bezier(.2,.8,.2,1);
+  z-index:301;
+}
+.drawer-overlay.open .drawer { transform:translateY(0); }
+.drawer-handle { width:36px; height:3px; background:var(--line); border-radius:2px; margin:0 auto 16px; }
+.drawer-title { font-family:'Saira Condensed',sans-serif; font-weight:800; font-size:20px; letter-spacing:.05em; text-transform:uppercase; margin-bottom:16px; }
+.spec-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px; }
+.spec-item { background:var(--bg-2); border-radius:var(--radius-sm); padding:12px; }
+.spec-label { font-size:11px; color:var(--txt-2); font-family:'JetBrains Mono',monospace; text-transform:uppercase; margin-bottom:4px; }
+.spec-value { font-family:'JetBrains Mono',monospace; font-size:18px; font-weight:700; color:var(--txt-0); }
+.spec-value.acid { color:var(--acid); }
+.spec-value.danger { color:var(--danger); }
+
+/* ============================================================
+   DISCLAIMER SCREEN
+   ============================================================ */
+#screen-disclaimer { padding:60px var(--pad) var(--pad); gap:20px; justify-content:center; }
+.disclaimer-icon { font-size:48px; text-align:center; }
+.disclaimer-title { font-family:'Saira Condensed',sans-serif; font-weight:800; font-size:28px; letter-spacing:.05em; text-transform:uppercase; text-align:center; color:var(--warn); }
+.disclaimer-body {
+  background:var(--bg-1); border:1px solid rgba(255,159,28,.2);
+  border-radius:var(--radius); padding:var(--pad);
+  color:var(--txt-1); font-size:14px; line-height:1.6;
+}
+.disclaimer-body p { margin-bottom:10px; }
+.disclaimer-body p:last-child { margin-bottom:0; }
+.check-row {
+  display:flex; align-items:flex-start; gap:12px;
+  background:var(--bg-2); border:1px solid var(--line);
+  border-radius:var(--radius-sm); padding:14px;
+  cursor:pointer;
+}
+.check-row input[type=checkbox] { width:20px; height:20px; margin-top:1px; accent-color:var(--acid); cursor:pointer; flex-shrink:0; }
+.check-label { font-size:14px; color:var(--txt-1); line-height:1.5; cursor:pointer; }
+.disclaimer-btns { display:flex; flex-direction:column; gap:10px; }
+
+/* ============================================================
+   SCAN SCREEN
+   ============================================================ */
+#screen-scan { padding:60px var(--pad) var(--pad); gap:20px; align-items:center; }
+.scan-header { align-self:stretch; }
+.radar-wrap {
+  position:relative; width:220px; height:220px;
+  flex-shrink:0;
+}
+.radar-ring {
+  position:absolute; border-radius:50%;
+  border:1px solid rgba(198,255,46,.12);
+  top:50%; left:50%; transform:translate(-50%,-50%);
+}
+.radar-ring:nth-child(1){ width:60px; height:60px; border-color:rgba(198,255,46,.3); }
+.radar-ring:nth-child(2){ width:110px; height:110px; }
+.radar-ring:nth-child(3){ width:160px; height:160px; }
+.radar-ring:nth-child(4){ width:210px; height:210px; }
+.radar-sweep {
+  position:absolute; top:50%; left:50%;
+  width:105px; height:2px;
+  transform-origin:0% 50%;
+  animation:radarSpin 2.5s linear infinite;
+}
+.radar-sweep::before {
+  content:'';
+  position:absolute; inset:0;
+  background:linear-gradient(90deg,transparent,var(--acid));
+  border-radius:1px;
+}
+@keyframes radarSpin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+.radar-center {
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  width:12px; height:12px; border-radius:50%;
+  background:var(--acid); box-shadow:var(--glow-acid);
+}
+.scan-subtitle { font-size:13px; color:var(--txt-1); text-align:center; max-width:280px; }
+.scan-devices { width:100%; display:flex; flex-direction:column; gap:8px; min-height:80px; }
+.device-row {
+  background:var(--bg-1); border:1px solid var(--line);
+  border-radius:var(--radius-sm); padding:12px 14px;
+  display:flex; align-items:center; gap:12px;
+  cursor:pointer; transition:border-color 140ms, box-shadow 140ms;
+  -webkit-tap-highlight-color:transparent;
+}
+.device-row:hover,.device-row:active { border-color:var(--acid); box-shadow:var(--glow-acid); }
+.device-name { flex:1; font-family:'Saira Condensed',sans-serif; font-weight:700; font-size:14px; letter-spacing:.04em; text-transform:uppercase; }
+.rssi-bars { display:flex; gap:2px; align-items:flex-end; }
+.rssi-bar { width:4px; background:var(--txt-2); border-radius:1px; }
+.rssi-bar.lit { background:var(--acid); }
+.sim-chip {
+  font-family:'JetBrains Mono',monospace; font-size:10px;
+  padding:3px 8px; border-radius:4px;
+  background:rgba(46,230,255,.08); color:var(--info); border:1px solid rgba(46,230,255,.2);
+}
+.scan-scanning { display:flex; align-items:center; gap:8px; color:var(--txt-2); font-size:13px; font-family:'JetBrains Mono',monospace; }
+.scan-dot-anim { display:flex; gap:3px; }
+.scan-dot-anim span { width:5px; height:5px; border-radius:50%; background:var(--acid); animation:scanDot 1.2s ease-in-out infinite; }
+.scan-dot-anim span:nth-child(2){ animation-delay:.2s; }
+.scan-dot-anim span:nth-child(3){ animation-delay:.4s; }
+@keyframes scanDot { 0%,80%,100%{transform:scale(.5);opacity:.3} 40%{transform:scale(1);opacity:1} }
+
+/* ============================================================
+   CONNECTING SCREEN
+   ============================================================ */
+#screen-connecting { padding:70px var(--pad) var(--pad); gap:24px; align-items:center; justify-content:center; }
+.connecting-title { font-family:'Saira Condensed',sans-serif; font-weight:800; font-size:22px; letter-spacing:.06em; text-transform:uppercase; color:var(--txt-0); }
+.chain-wrap { display:flex; flex-direction:column; align-items:center; gap:0; width:100%; max-width:300px; }
+.chain-node {
+  display:flex; align-items:center; gap:14px;
+  padding:12px 0; width:100%;
+  opacity:.35; transition:opacity 400ms var(--ease);
+}
+.chain-node.lit { opacity:1; }
+.chain-node-icon {
+  width:52px; height:52px; border-radius:50%;
+  background:var(--bg-2); border:2px solid var(--line);
+  display:flex; align-items:center; justify-content:center;
+  transition:border-color 400ms, box-shadow 400ms, background 400ms;
+  flex-shrink:0;
+}
+.chain-node.lit .chain-node-icon {
+  border-color:var(--acid); background:rgba(198,255,46,.1);
+  box-shadow:var(--glow-acid);
+}
+.chain-node.fail .chain-node-icon { border-color:var(--danger); background:rgba(255,46,99,.1); box-shadow:var(--glow-danger); }
+.chain-node-label { flex:1; }
+.chain-node-name { font-family:'Saira Condensed',sans-serif; font-weight:700; font-size:14px; letter-spacing:.06em; text-transform:uppercase; }
+.chain-node-sub { font-size:11px; color:var(--txt-2); font-family:'JetBrains Mono',monospace; margin-top:2px; }
+.chain-link {
+  width:2px; height:36px; margin-left:25px;
+  background:var(--line); position:relative; overflow:hidden;
+}
+.chain-packet {
+  position:absolute; left:-1px; width:4px; height:10px;
+  background:var(--info); border-radius:2px;
+  box-shadow:0 0 6px var(--info);
+  top:-10px; opacity:0;
+}
+.chain-packet.traveling {
+  animation:packetTravel 600ms linear;
+}
+@keyframes packetTravel {
+  0%{ top:-10px; opacity:1; }
+  100%{ top:100%; opacity:0; }
+}
+.chain-complete .chain-link { background:rgba(198,255,46,.3); }
+.chain-complete .chain-node-icon { animation:chainPulse 500ms ease-out; }
+@keyframes chainPulse { 0%,100%{} 50%{box-shadow:0 0 0 8px rgba(198,255,46,.15),var(--glow-acid);} }
+.conn-console {
+  width:100%; max-width:300px;
+  background:var(--bg-1); border:1px solid var(--line);
+  border-radius:var(--radius-sm); padding:12px;
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  color:var(--txt-1); line-height:1.7;
+  max-height:120px; overflow-y:auto;
+}
+.conn-console .log-ok { color:var(--acid); }
+.conn-console .log-err { color:var(--danger); }
+
+/* ============================================================
+   DASHBOARD SCREEN
+   ============================================================ */
+#screen-dashboard { padding:60px var(--pad) 80px; gap:16px; }
+
+/* Hero gauge */
+.gauge-wrap {
+  background:var(--bg-1); border:1px solid var(--line);
+  border-radius:var(--radius); padding:var(--pad);
+  display:flex; flex-direction:column; align-items:center; gap:12px;
+}
+.gauge-title { font-family:'Saira Condensed',sans-serif; font-weight:700; font-size:13px; letter-spacing:.1em; text-transform:uppercase; color:var(--txt-2); align-self:flex-start; }
+.gauge-svg-wrap { position:relative; width:240px; height:140px; }
+.gauge-num {
+  position:absolute; bottom:10px; left:50%; transform:translateX(-50%);
+  font-family:'JetBrains Mono',monospace; font-weight:700; font-size:42px;
+  color:var(--txt-0); white-space:nowrap;
+  display:flex; align-items:baseline; gap:6px;
+}
+.gauge-unit { font-size:14px; color:var(--txt-2); cursor:pointer; border-bottom:1px dashed var(--txt-2); }
+.gauge-limit-chip {
+  font-family:'JetBrains Mono',monospace; font-size:10px;
+  padding:3px 8px; border-radius:4px;
+  background:rgba(198,255,46,.1); color:var(--acid); border:1px solid rgba(198,255,46,.25);
+  transition:all 200ms;
+}
+.gauge-limit-chip.over { background:rgba(255,46,99,.1); color:var(--danger); border-color:rgba(255,46,99,.25); }
+.speed-slider-row { display:flex; align-items:center; gap:10px; width:100%; }
+.speed-slider-row input[type=range] { flex:1; }
+.speed-apply { padding:10px 18px; font-size:13px; }
+
+/* Profile selector */
+.profile-row {
+  display:flex; gap:6px;
+  background:var(--bg-1); border:1px solid var(--line);
+  border-radius:var(--radius); padding:6px;
+}
+.profile-btn {
+  flex:1; padding:9px 4px;
+  background:transparent; border:none; border-radius:var(--radius-sm);
+  font-family:'Saira Condensed',sans-serif; font-weight:700; font-size:13px;
+  letter-spacing:.06em; text-transform:uppercase;
+  color:var(--txt-2); cursor:pointer;
+  transition:all 140ms var(--ease);
+  -webkit-tap-highlight-color:transparent;
+}
+.profile-btn.active { background:var(--acid); color:#0a0b0d; }
+.profile-btn.insane-active { background:var(--danger); color:#fff; }
+
+/* Telemetry */
+.telemetry-strip {
+  background:var(--bg-1); border:1px solid var(--line);
+  border-radius:var(--radius); padding:12px var(--pad);
+  display:flex; flex-wrap:wrap; gap:8px 16px;
+}
+.telem-item { display:flex; flex-direction:column; gap:1px; }
+.telem-label { font-size:10px; color:var(--txt-2); font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:.06em; }
+.telem-val { font-family:'JetBrains Mono',monospace; font-size:14px; font-weight:700; color:var(--txt-0); }
+.telem-val.warn { color:var(--warn); }
+
+/* Feature grid */
+.section-title { font-family:'Saira Condensed',sans-serif; font-weight:700; font-size:13px; letter-spacing:.12em; text-transform:uppercase; color:var(--txt-2); padding:4px 0; }
+.feature-grid { display:flex; flex-direction:column; gap:8px; }
+.feature-card {
+  background:var(--bg-1); border:1px solid var(--line);
+  border-radius:var(--radius); padding:var(--pad);
+  display:flex; flex-direction:column; gap:12px;
+}
+.feature-header { display:flex; align-items:center; gap:10px; }
+.feature-icon {
+  width:36px; height:36px; border-radius:var(--radius-sm);
+  background:var(--bg-2); display:flex; align-items:center; justify-content:center;
+  flex-shrink:0;
+}
+.feature-icon svg { width:20px; height:20px; }
+.feature-title-wrap { flex:1; }
+.feature-name { font-family:'Saira Condensed',sans-serif; font-weight:700; font-size:15px; letter-spacing:.04em; text-transform:uppercase; }
+.feature-desc { font-size:12px; color:var(--txt-2); margin-top:2px; }
+.feature-controls { display:flex; flex-direction:column; gap:10px; }
+
+/* Nitro cooldown ring */
+.nitro-btn-wrap { display:flex; align-items:center; gap:12px; }
+.cooldown-ring-wrap { position:relative; width:40px; height:40px; flex-shrink:0; }
+.cooldown-svg { position:absolute; inset:0; transform:rotate(-90deg); }
+.cooldown-track { fill:none; stroke:var(--bg-2); stroke-width:3; }
+.cooldown-fill { fill:none; stroke:var(--danger); stroke-width:3; stroke-linecap:round; stroke-dasharray:100; stroke-dashoffset:100; transition:stroke-dashoffset 1s linear; }
+
+/* Console feed */
+.console-wrap {
+  background:var(--bg-1); border:1px solid var(--line);
+  border-radius:var(--radius); overflow:hidden;
+}
+.console-header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px var(--pad); border-bottom:1px solid var(--line); cursor:pointer;
+}
+.console-header-label { font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--txt-2); display:flex; align-items:center; gap:8px; }
+.console-toggle { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--txt-2); }
+.console-body {
+  max-height:160px; overflow-y:auto;
+  padding:10px var(--pad);
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  color:var(--txt-1); line-height:1.8;
+  display:none;
+}
+.console-body.open { display:block; }
+.console-line .ts { color:var(--txt-2); }
+.console-line .kv { color:var(--acid); }
+.console-line .ack { color:var(--acid); }
+.console-line .nak { color:var(--danger); }
+
+/* Legality badge */
+#legality-badge {
+  position:absolute; bottom:0; left:0; right:0; z-index:50;
+  display:none;
+  align-items:center; justify-content:space-between;
+  padding:10px var(--pad) calc(10px + env(safe-area-inset-bottom,0px));
+  background:var(--bg-0); border-top:1px solid var(--line);
+}
+#legality-badge.visible { display:flex; }
+.badge-status {
+  font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.08em;
+  display:flex; align-items:center; gap:6px;
+}
+.badge-led { width:8px; height:8px; border-radius:50%; }
+.badge-led.green { background:var(--acid); box-shadow:0 0 6px var(--acid); }
+.badge-led.red { background:var(--danger); box-shadow:0 0 6px var(--danger); }
+.disconnect-btn { font-size:13px; padding:8px 16px; }
+
+/* Throttle curve editor */
+.curve-editor { background:var(--bg-2); border-radius:var(--radius-sm); padding:12px; }
+.curve-svg { width:100%; height:80px; cursor:crosshair; display:block; touch-action:none; }
+
+/* Toast */
+.toast {
+  position:absolute; top:60px; left:50%; transform:translateX(-50%) translateY(-20px);
+  background:var(--bg-1); border:1px solid var(--line);
+  border-radius:var(--radius-sm); padding:10px 18px;
+  font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--txt-0);
+  white-space:nowrap; z-index:400;
+  opacity:0; pointer-events:none;
+  transition:opacity 200ms, transform 200ms;
+}
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- STATUS BAR -->
+  <div id="status-bar">
+    <div class="chain-mini" id="sb-chain">
+      <div class="chain-dot" id="sd0"></div>
+      <div class="chain-dot" id="sd1"></div>
+      <div class="chain-dot" id="sd2"></div>
+      <div class="chain-dot" id="sd3"></div>
+    </div>
+    <div class="status-model" id="sb-model">—</div>
+    <div class="status-bits">
+      <span class="status-batt" id="sb-batt">—%</span>
+      <span class="status-rssi" id="sb-rssi">—dBm</span>
+    </div>
+    <button class="kebab-btn" id="kebab-btn" aria-label="Menu">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+        <circle cx="8" cy="3" r="1.5"/><circle cx="8" cy="8" r="1.5"/><circle cx="8" cy="13" r="1.5"/>
+      </svg>
+    </button>
+    <div class="kebab-menu" id="kebab-menu">
+      <button class="kebab-item" data-action="disconnect">Disconnect</button>
+      <button class="kebab-item" data-action="rescan">Re-scan</button>
+      <button class="kebab-item" data-action="reset">Reset tune</button>
+      <button class="kebab-item" data-action="about">About</button>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <!-- =================== SPLASH =================== -->
+  <div class="screen" id="screen-splash">
+    <div class="splash-logo">MasterTuner</div>
+    <div class="splash-tagline">Take control of your ride.</div>
+    <div class="splash-btns" id="splash-btns">
+      <button class="btn btn-acid btn-full" id="btn-init">Initialize</button>
+    </div>
+    <div class="splash-version font-mono">v1.0 · BLE TUNER</div>
+  </div>
+
+  <!-- =================== BRAND =================== -->
+  <div class="screen" id="screen-brand">
+    <div class="screen-header">
+      <div class="step-info">
+        <div class="step-title">Select Manufacturer</div>
+        <div class="step-num">01 / 03</div>
+      </div>
+    </div>
+    <div class="search-field">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="var(--txt-2)" stroke-width="1.5">
+        <circle cx="6.5" cy="6.5" r="5"/><line x1="10.5" y1="10.5" x2="14" y2="14"/>
+      </svg>
+      <input type="text" id="brand-search" placeholder="Search brands…" autocomplete="off">
+    </div>
+    <div class="brand-grid" id="brand-grid"></div>
+  </div>
+
+  <!-- =================== MODEL =================== -->
+  <div class="screen" id="screen-model">
+    <div class="screen-header">
+      <button class="back-btn" id="model-back" aria-label="Back">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="11,4 6,9 11,14"/>
+        </svg>
+      </button>
+      <div class="step-info">
+        <div class="step-title" id="model-screen-title">Select Model</div>
+        <div class="step-num">02 / 03</div>
+      </div>
+    </div>
+    <div class="model-list" id="model-list"></div>
+    <!-- Spec drawer -->
+    <div class="drawer-overlay" id="spec-overlay">
+      <div class="drawer" id="spec-drawer">
+        <div class="drawer-handle"></div>
+        <div class="drawer-title" id="spec-model-name">Model</div>
+        <div class="spec-grid" id="spec-grid"></div>
+        <button class="btn btn-acid btn-full" id="btn-select-model">Select This Scooter</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =================== DISCLAIMER =================== -->
+  <div class="screen" id="screen-disclaimer">
+    <div class="disclaimer-icon">⚡</div>
+    <div class="disclaimer-title">Before You Tune.</div>
+    <div class="disclaimer-body">
+      <p>De-restricting your e-scooter above the local legal limit (25 km/h in the EU) makes it <strong>road-illegal</strong> and can void your insurance.</p>
+      <p>This app is intended for <strong>closed-course and private-property use only.</strong> By continuing, you accept full responsibility for your actions and any consequences of modifying your scooter's parameters.</p>
+      <p>Some features increase mechanical wear, reduce battery range, and may affect braking distances.</p>
+    </div>
+    <label class="check-row">
+      <input type="checkbox" id="disclaimer-check">
+      <span class="check-label">I understand and will ride responsibly on private property or a closed course only.</span>
+    </label>
+    <div class="disclaimer-btns">
+      <button class="btn btn-acid btn-full" id="btn-agree" disabled>I Agree — Continue</button>
+      <button class="btn btn-ghost btn-full" id="btn-cancel-disclaimer">Cancel</button>
+    </div>
+  </div>
+
+  <!-- =================== SCAN =================== -->
+  <div class="screen" id="screen-scan">
+    <div class="scan-header">
+      <div class="screen-header" style="margin-bottom:4px">
+        <button class="back-btn" id="scan-back" aria-label="Back">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="11,4 6,9 11,14"/>
+          </svg>
+        </button>
+        <div class="step-info">
+          <div class="step-title">Find Your Scooter</div>
+          <div class="step-num">03 / 03</div>
+        </div>
+      </div>
+    </div>
+    <div class="radar-wrap">
+      <div class="radar-ring"></div><div class="radar-ring"></div>
+      <div class="radar-ring"></div><div class="radar-ring"></div>
+      <div class="radar-sweep"></div>
+      <div class="radar-center"></div>
+    </div>
+    <p class="scan-subtitle">Make sure your scooter is powered on and nearby.</p>
+    <button class="btn btn-acid" id="btn-scan">Scan for Devices</button>
+    <div id="sim-chip-wrap" style="display:none">
+      <span class="sim-chip">Simulation Mode</span>
+    </div>
+    <div class="scan-devices" id="scan-devices"></div>
+  </div>
+
+  <!-- =================== CONNECTING =================== -->
+  <div class="screen" id="screen-connecting">
+    <div class="connecting-title">Establishing Link</div>
+    <div class="chain-wrap" id="chain-wrap">
+      <!-- nodes injected by JS -->
+    </div>
+    <div class="conn-console" id="conn-console"></div>
+    <button class="btn btn-ghost" id="btn-retry-conn" style="display:none">Retry</button>
+  </div>
+
+  <!-- =================== DASHBOARD =================== -->
+  <div class="screen" id="screen-dashboard">
+    <!-- Hero gauge -->
+    <div class="gauge-wrap" id="gauge-card">
+      <div class="gauge-title">Top Speed Limiter</div>
+      <div class="gauge-svg-wrap" id="gauge-svg-wrap">
+        <svg id="gauge-svg" viewBox="0 0 240 140" width="240" height="140" aria-hidden="true">
+          <!-- gauge arcs rendered by JS -->
+        </svg>
+        <div class="gauge-num">
+          <span id="gauge-display">25</span>
+          <span class="gauge-unit" id="unit-toggle" title="Toggle km/h ↔ mph">km/h</span>
+        </div>
+      </div>
+      <div id="gauge-chip" class="gauge-limit-chip">COMPLIANT</div>
+      <div class="speed-slider-row">
+        <input type="range" id="speed-slider" min="25" max="45" value="25" step="1">
+        <button class="btn btn-acid speed-apply" id="btn-apply-speed">Apply</button>
+      </div>
+    </div>
+
+    <!-- Power profile -->
+    <div class="profile-row" id="profile-row">
+      <button class="profile-btn active" data-profile="ECO">Eco</button>
+      <button class="profile-btn active" data-profile="NORMAL">Normal</button>
+      <button class="profile-btn" data-profile="SPORT">Sport</button>
+      <button class="profile-btn" data-profile="INSANE">Insane</button>
+    </div>
+
+    <!-- Live telemetry -->
+    <div class="telemetry-strip" id="telemetry-strip">
+      <div class="telem-item"><div class="telem-label">Battery</div><div class="telem-val" id="t-batt">84%</div></div>
+      <div class="telem-item"><div class="telem-label">Voltage</div><div class="telem-val" id="t-volt">49.2V</div></div>
+      <div class="telem-item"><div class="telem-label">Temp</div><div class="telem-val" id="t-temp">31°C</div></div>
+      <div class="telem-item"><div class="telem-label">Odo</div><div class="telem-val" id="t-odo">1,204km</div></div>
+      <div class="telem-item"><div class="telem-label">Trip</div><div class="telem-val" id="t-trip">8.6km</div></div>
+      <div class="telem-item"><div class="telem-label">RSSI</div><div class="telem-val" id="t-rssi">-58dBm</div></div>
+    </div>
+
+    <div class="section-title">Feature Catalog</div>
+    <div class="feature-grid" id="feature-grid"></div>
+
+    <!-- Console feed -->
+    <div class="console-wrap" id="console-wrap">
+      <div class="console-header" id="console-toggle-btn">
+        <div class="console-header-label">
+          <div class="led ok"></div>
+          CONSOLE FEED
+        </div>
+        <span class="console-toggle" id="console-toggle-label">▼ SHOW</span>
+      </div>
+      <div class="console-body" id="console-body"></div>
+    </div>
+  </div>
+
+  <!-- Legality badge -->
+  <div id="legality-badge">
+    <div class="badge-status">
+      <div class="badge-led green" id="badge-led"></div>
+      <span id="badge-text" class="font-mono" style="font-size:11px;letter-spacing:.08em">COMPLIANT</span>
+    </div>
+    <button class="btn btn-ghost disconnect-btn" id="btn-disconnect">Disconnect</button>
+  </div>
+</div>
+
+<script type="module">
+/* ============================================================
+   2. COPY (strings)
+   ============================================================ */
+const COPY = {
+  init:'Initialize',
+  resume:(m)=>`Resume — ${m}`,
+  newScooter:'New Scooter',
+};
+
+/* ============================================================
+   3. DATA: BRANDS, FEATURES, PROFILES
+   Note: all specs are placeholder/illustrative values
+   ============================================================ */
+const BRANDS = [
+  { id:'xiaomi', name:'Xiaomi', models:[
+    { id:'mi3',    name:'Mi Electric Scooter 3', stockKmh:25, maxKmh:33, volt:36, watt:600 },
+    { id:'pro2',   name:'Pro 2',                  stockKmh:25, maxKmh:35, volt:42, watt:600 },
+    { id:'4pro',   name:'4 Pro',                  stockKmh:25, maxKmh:38, volt:48, watt:700 },
+    { id:'4ultra', name:'4 Ultra',                stockKmh:25, maxKmh:45, volt:48, watt:940 },
+  ]},
+  { id:'ninebot', name:'Segway-Ninebot', models:[
+    { id:'maxg30', name:'Max G30',  stockKmh:25, maxKmh:40, volt:36, watt:350 },
+    { id:'g2',     name:'GT2',      stockKmh:25, maxKmh:70, volt:60, watt:3000 },
+    { id:'f40',    name:'F40',      stockKmh:25, maxKmh:35, volt:36, watt:400 },
+  ]},
+  { id:'dualtron', name:'Dualtron', models:[
+    { id:'thunder3', name:'Thunder 3', stockKmh:25, maxKmh:80, volt:72, watt:4000 },
+    { id:'storm',    name:'Storm',     stockKmh:25, maxKmh:90, volt:84, watt:6640 },
+    { id:'victor',   name:'Victor',    stockKmh:25, maxKmh:65, volt:60, watt:2000 },
+  ]},
+  { id:'kaabo', name:'Kaabo', models:[
+    { id:'mantis',   name:'Mantis 10',    stockKmh:25, maxKmh:65, volt:60, watt:2000 },
+    { id:'wolfking', name:'Wolf King GT', stockKmh:25, maxKmh:95, volt:72, watt:4000 },
+  ]},
+  { id:'apollo', name:'Apollo', models:[
+    { id:'city',    name:'City',    stockKmh:25, maxKmh:40, volt:48, watt:500 },
+    { id:'phantom', name:'Phantom', stockKmh:25, maxKmh:60, volt:60, watt:1200 },
+    { id:'ghost',   name:'Ghost',   stockKmh:25, maxKmh:64, volt:60, watt:1000 },
+  ]},
+  { id:'niu', name:'NIU', models:[
+    { id:'kqi3',   name:'KQi3 Pro', stockKmh:25, maxKmh:32, volt:48, watt:350 },
+    { id:'kqi300', name:'KQi 300',  stockKmh:25, maxKmh:32, volt:48, watt:350 },
+  ]},
+  { id:'pure', name:'Pure Electric', models:[
+    { id:'air3',   name:'Air³',         stockKmh:25, maxKmh:32, volt:36, watt:350 },
+    { id:'advance', name:'Advance',     stockKmh:25, maxKmh:40, volt:48, watt:500 },
+  ]},
+  { id:'inokim', name:'Inokim', models:[
+    { id:'quick4', name:'Quick 4',       stockKmh:25, maxKmh:45, volt:48, watt:500 },
+    { id:'ox',     name:'OX Super',      stockKmh:25, maxKmh:55, volt:60, watt:1000 },
+  ]},
+];
+
+const FEATURES = [
+  { id:'ghostStart',   name:'Ghost Start',       desc:'Pull away from standstill on throttle alone — no kick-push.', ctrl:'toggle', accent:'acid',
+    icon:`<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="8" r="5"/><path d="M7 13l-2 5M13 13l2 5M7 18h6"/></svg>` },
+  { id:'cruise',       name:'Cruise Control',    desc:'Hold speed automatically after steady throttle.', ctrl:'toggle+slider', accent:'acid', sliderMin:1, sliderMax:5, sliderKey:'cruiseSens',
+    icon:`<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="7"/><path d="M10 6v4l3 2"/></svg>` },
+  { id:'panic',        name:'Panic Mode',         desc:'Strobe lights, alarm, and instant motor cut.', ctrl:'momentary', accent:'danger',
+    icon:`<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 2l2 6h6l-5 4 2 6-5-4-5 4 2-6L2 8h6z"/></svg>` },
+  { id:'regen',        name:'Adaptive Regen',     desc:'Dynamic regen braking strength; stronger = more recovered range.', ctrl:'toggle+slider', accent:'info', sliderMin:1, sliderMax:5, sliderKey:'regenLevel',
+    icon:`<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 10a6 6 0 1 0 12 0"/><polyline points="14,6 18,10 14,14"/></svg>` },
+  { id:'stealth',      name:'Stealth Mode',       desc:'Kill lights, mute chime, dim the display.', ctrl:'toggle', accent:'dim',
+    icon:`<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3l14 14M10 4a6 6 0 0 1 6 6M4.4 5.6A6 6 0 0 0 10 16a6 6 0 0 0 5-2.7"/></svg>` },
+  { id:'brutalTorque', name:'Brutal Torque',       desc:'Max torque off the line, aggressive throttle map.', ctrl:'toggle', accent:'danger',
+    icon:`<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 2v4M10 14v4M2 10h4M14 10h4M4.9 4.9l2.8 2.8M12.3 12.3l2.8 2.8M4.9 15.1l2.8-2.8M12.3 7.7l2.8-2.8"/></svg>` },
+  { id:'drift',        name:'Drift Assist',        desc:'Loosen rear traction/regen for controlled slides. Closed course only.', ctrl:'toggle', accent:'danger',
+    icon:`<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 16c2-4 8-10 12-4M4 16l2-6"/></svg>` },
+  { id:'nitro',        name:'Nitro Boost',         desc:'Temporary power overboost ~6s, then 30s cooldown.', ctrl:'nitro', accent:'danger',
+    icon:`<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L4 11h6l-2 7 8-9h-6z"/></svg>` },
+  { id:'launch',       name:'Launch Control',      desc:'Pre-load torque for a hard, consistent launch.', ctrl:'toggle', accent:'danger',
+    icon:`<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 2l6 10H4z"/><line x1="10" y1="12" x2="10" y2="18"/></svg>` },
+  { id:'hillAssist',   name:'Hill Assist',          desc:'Hold on inclines and add torque on climbs.', ctrl:'toggle', accent:'acid',
+    icon:`<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="2,16 8,8 13,12 18,4"/></svg>` },
+  { id:'eco',          name:'Eco Guardian',         desc:'Cap output and soften the curve to maximize range.', ctrl:'toggle', accent:'acid',
+    icon:`<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 2c-5 4-5 10 0 12 5-2 5-8 0-12z"/><line x1="10" y1="14" x2="10" y2="18"/></svg>` },
+  { id:'onePedal',     name:'One-Pedal Drive',      desc:'Throttle-off engages strong regen for one-pedal riding.', ctrl:'toggle', accent:'info',
+    icon:`<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="7" y="2" width="6" height="10" rx="3"/><line x1="10" y1="12" x2="10" y2="18"/></svg>` },
+  { id:'throttleCurve',name:'Custom Throttle Curve',desc:'Drag 5 points to shape throttle response.', ctrl:'curve', accent:'acid',
+    icon:`<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="2,16 6,10 10,8 14,5 18,2"/></svg>` },
+  { id:'coldBoost',    name:'Cold-Weather Boost',   desc:'Warm the pack and lift voltage cutoff in cold weather.', ctrl:'toggle', accent:'warn',
+    icon:`<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 2v16M5 5l5 5 5-5M5 15l5-5 5 5"/></svg>` },
+  { id:'lockdown',     name:'Anti-Theft Lockdown',  desc:'Lock the wheel and arm the motion alarm when parked.', ctrl:'toggle', accent:'acid',
+    icon:`<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="9" width="10" height="9" rx="2"/><path d="M7 9V6a3 3 0 0 1 6 0v3"/></svg>` },
+];
+
+const PROFILES = {
+  ECO:    { speedPct:.7,  throttleCurve:[0,10,25,40,60],  regenLevel:4, brutalTorque:false },
+  NORMAL: { speedPct:1.0, throttleCurve:[0,20,45,70,100], regenLevel:2, brutalTorque:false },
+  SPORT:  { speedPct:1.0, throttleCurve:[0,30,60,85,100], regenLevel:3, brutalTorque:false },
+  INSANE: { speedPct:1.0, throttleCurve:[0,40,75,95,100], regenLevel:1, brutalTorque:true  },
+};
+
+/* ============================================================
+   4. Storage helper
+   ============================================================ */
+const storage = {
+  _mem:{},
+  get(k){ try{ return window.storage?.getItem?.(k) ?? this._mem[k] ?? null; } catch{ return this._mem[k]??null; } },
+  set(k,v){ try{ window.storage?.setItem?.(k,v); } catch{} this._mem[k]=v; },
+  remove(k){ try{ window.storage?.removeItem?.(k); } catch{} delete this._mem[k]; },
+};
+
+/* ============================================================
+   5. ScooterTransport
+   ============================================================ */
+class SimulatedTransport {
+  constructor(){ this._cbs={}; this._telemUnsub=null; }
+  isRealBleAvailable(){ return false; }
+
+  async scan(){
+    await _delay(1200 + Math.random()*1200);
+    const model = appState.model;
+    const decoys = [
+      { id:'sim-1', name:`${model?.name||'Scooter'} [${_rndId()}]`, rssi:-52 },
+      { id:'sim-2', name:`Unknown BLE Device`,                      rssi:-78 },
+    ];
+    if(Math.random()>.5) decoys.push({ id:'sim-3', name:`M365-${_rndId()}`, rssi:-65 });
+    return decoys;
+  }
+
+  async connect(deviceId){
+    const steps = [
+      { node:0, label:'INTERNET', sub:'signal acquired',   log:'> inet.ping… OK' },
+      { node:1, label:'PHONE',    sub:'paired',            log:'> ble.gatt connect… OK' },
+      { node:2, label:'MASTERTUNER',sub:'authenticated',   log:'> auth handshake… OK' },
+      { node:3, label:'SCOOTER', sub:'linked',             log:`> read device profile… ${appState.model?.name||'device'}` },
+    ];
+    for(const s of steps){
+      await _delay(500 + Math.random()*200);
+      this._emit('step', s);
+    }
+    await _delay(300);
+    this._emit('log', '> sync params… OK');
+    await _delay(200);
+    this._emit('log', '> LINK ESTABLISHED');
+    return { model: appState.model?.name||'Scooter', volt: appState.model?.volt||48 };
+  }
+
+  async writeParam(key, value){
+    const lat = 80+Math.floor(Math.random()*120);
+    await _delay(lat);
+    // ~3% NAK chance
+    if(Math.random()<.03) throw new Error('NAK');
+    return { ok:true, latencyMs:lat };
+  }
+
+  subscribeTelemetry(cb){
+    let batt=84, volt=appState.model?.volt||48, temp=31, odo=1204, trip=8.6, rssi=-58;
+    const id = setInterval(()=>{
+      batt = Math.max(0, batt - (Math.random()*.06));
+      volt = volt + (Math.random()-.5)*.3;
+      temp = temp + (Math.random()-.5)*.8;
+      rssi = rssi + Math.floor((Math.random()-.5)*6);
+      trip += Math.random()*.02;
+      cb({ batt:batt.toFixed(0), volt:volt.toFixed(1), temp:temp.toFixed(0), odo:odo.toFixed(0), trip:trip.toFixed(1), rssi:rssi.toFixed(0) });
+    }, 700);
+    return ()=>clearInterval(id);
+  }
+
+  async disconnect(){ await _delay(200); }
+  on(ev, cb){ (this._cbs[ev]||=[]).push(cb); }
+  _emit(ev,...a){ (this._cbs[ev]||[]).forEach(fn=>fn(...a)); }
+}
+
+class WebBleTransport {
+  constructor(){ this._sim = new SimulatedTransport(); }
+  isRealBleAvailable(){ return typeof navigator.bluetooth !== 'undefined' && location.protocol==='https:'; }
+
+  async scan(){
+    if(!this.isRealBleAvailable()) return this._sim.scan();
+    try{
+      const device = await navigator.bluetooth.requestDevice({ acceptAllDevices:true });
+      return [{ id:device.id||'ble-0', name:device.name||'BLE Device', rssi:-60 }];
+    }catch(e){
+      appState.simMode=true;
+      return this._sim.scan();
+    }
+  }
+
+  async connect(deviceId){
+    // TODO: per-model characteristic map (each manufacturer uses different service/characteristic UUIDs)
+    appState.simMode=true;
+    return this._sim.connect(deviceId);
+  }
+
+  async writeParam(k,v){ return this._sim.writeParam(k,v); }
+  subscribeTelemetry(cb){ return this._sim.subscribeTelemetry(cb); }
+  async disconnect(){ return this._sim.disconnect(); }
+  on(ev,cb){ this._sim.on(ev,cb); }
+}
+
+function _delay(ms){ return new Promise(r=>setTimeout(r,ms)); }
+function _rndId(){ return Math.random().toString(36).slice(2,6).toUpperCase(); }
+
+/* ============================================================
+   6. State + Router
+   ============================================================ */
+const appState = {
+  screen:'splash',
+  brand:null, model:null,
+  selectedDeviceId:null,
+  simMode:false,
+  unitKmh:true,
+  topSpeed:25,
+  profile:'NORMAL',
+  features:{
+    ghostStart:false, cruise:false, cruiseSens:3,
+    panic:false, regen:false, regenLevel:2,
+    stealth:false, brutalTorque:false, drift:false,
+    nitro:false, launch:false, hillAssist:false,
+    eco:false, onePedal:false, throttleCurve:[0,20,45,70,100],
+    coldBoost:false, lockdown:false,
+  },
+  connected:false,
+  telemUnsub:null,
+};
+
+let transport = null;
+
+function initTransport(){
+  const wbt = new WebBleTransport();
+  transport = wbt.isRealBleAvailable() ? wbt : new SimulatedTransport();
+}
+
+function getLastScooter(){
+  const id = storage.get('mt:lastScooter');
+  if(!id) return null;
+  for(const b of BRANDS) for(const m of b.models) if(m.id===id) return { brand:b, model:m };
+  return null;
+}
+
+function saveTune(){
+  if(!appState.model) return;
+  storage.set(`mt:tune:${appState.model.id}`, JSON.stringify({
+    topSpeed:appState.topSpeed, profile:appState.profile,
+    features:appState.features, unitKmh:appState.unitKmh,
+  }));
+}
+
+function loadTune(){
+  if(!appState.model) return;
+  const raw = storage.get(`mt:tune:${appState.model.id}`);
+  if(!raw) return;
+  try{
+    const t = JSON.parse(raw);
+    appState.topSpeed = t.topSpeed ?? 25;
+    appState.profile  = t.profile  ?? 'NORMAL';
+    appState.unitKmh  = t.unitKmh  ?? true;
+    Object.assign(appState.features, t.features || {});
+  }catch{}
+}
+
+let _saveTuneTimer = null;
+function queueSaveTune(){
+  clearTimeout(_saveTuneTimer);
+  _saveTuneTimer = setTimeout(saveTune, 400);
+}
+
+// Screen routing
+const SCREENS = ['splash','brand','model','disclaimer','scan','connecting','dashboard'];
+function goTo(name, skipTransition=false){
+  const prev = document.querySelector('.screen.active');
+  if(prev){
+    prev.classList.remove('active');
+    if(!skipTransition){ prev.classList.add('exit-left'); setTimeout(()=>prev.classList.remove('exit-left'),300); }
+  }
+  const next = document.getElementById(`screen-${name}`);
+  if(!next) return;
+  next.classList.add('active');
+  appState.screen = name;
+
+  // Status bar visibility
+  const showBar = ['scan','connecting','dashboard'].includes(name);
+  document.getElementById('status-bar').classList.toggle('visible', showBar);
+  document.getElementById('legality-badge').classList.toggle('visible', name==='dashboard');
+}
+
+/* ============================================================
+   7. Screens
+   ============================================================ */
+
+// ---- SPLASH ----
+function initSplash(){
+  const last = getLastScooter();
+  const btns = document.getElementById('splash-btns');
+  btns.innerHTML='';
+  if(last){
+    const rBtn = document.createElement('button');
+    rBtn.className='btn btn-acid btn-full';
+    rBtn.textContent=COPY.resume(last.model.name);
+    rBtn.onclick=()=>{ appState.brand=last.brand; appState.model=last.model; loadTune(); goToScan(); };
+    btns.appendChild(rBtn);
+    const nBtn = document.createElement('button');
+    nBtn.className='btn btn-ghost btn-full';
+    nBtn.textContent=COPY.newScooter;
+    nBtn.onclick=()=>goTo('brand');
+    btns.appendChild(nBtn);
+  } else {
+    const b = document.createElement('button');
+    b.className='btn btn-acid btn-full';
+    b.textContent=COPY.init;
+    b.onclick=()=>goTo('brand');
+    btns.appendChild(b);
+  }
+}
+
+// ---- BRAND ----
+function renderBrands(filter=''){
+  const grid = document.getElementById('brand-grid');
+  grid.innerHTML='';
+  const q = filter.toLowerCase();
+  const filtered = BRANDS.filter(b=>b.name.toLowerCase().includes(q));
+  filtered.forEach((brand,i)=>{
+    const card = document.createElement('div');
+    card.className='brand-card';
+    card.style.animationDelay=`${i*40}ms`;
+    card.innerHTML=`
+      <div class="brand-monogram">${brand.name.slice(0,2).toUpperCase()}</div>
+      <div>
+        <div class="brand-name">${brand.name}</div>
+        <div class="brand-count">${brand.models.length} model${brand.models.length!==1?'s':''}</div>
+      </div>`;
+    card.onclick=()=>{
+      appState.brand=brand;
+      renderModels();
+      goTo('model');
+    };
+    grid.appendChild(card);
+  });
+}
+
+// ---- MODEL ----
+function renderModels(){
+  document.getElementById('model-screen-title').textContent=`Select Model — ${appState.brand.name}`;
+  const list = document.getElementById('model-list');
+  list.innerHTML='';
+  appState.brand.models.forEach(m=>{
+    const row = document.createElement('div');
+    row.className='model-row';
+    row.setAttribute('role','button');
+    row.setAttribute('tabindex','0');
+    row.innerHTML=`
+      <div class="model-info">
+        <div class="model-name">${m.name}</div>
+        <div class="model-chips">
+          <span class="chip">STOCK ${m.stockKmh} km/h</span>
+          <span class="chip accent">MAX ${m.maxKmh} km/h</span>
+          <span class="chip">${m.volt}V</span>
+          <span class="chip">${m.watt}W</span>
+        </div>
+      </div>
+      <svg class="chevron" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2"><polyline points="7,4 12,9 7,14"/></svg>`;
+    const open = ()=>openSpecDrawer(m);
+    row.onclick=open;
+    row.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); open(); } };
+    list.appendChild(row);
+  });
+}
+
+let _selectedModelForDrawer = null;
+function openSpecDrawer(m){
+  _selectedModelForDrawer = m;
+  document.getElementById('spec-model-name').textContent=m.name;
+  const grid = document.getElementById('spec-grid');
+  grid.innerHTML=`
+    <div class="spec-item"><div class="spec-label">Stock Limit</div><div class="spec-value acid">${m.stockKmh} km/h</div></div>
+    <div class="spec-item"><div class="spec-label">Unlocked Max</div><div class="spec-value danger">${m.maxKmh} km/h</div></div>
+    <div class="spec-item"><div class="spec-label">Voltage</div><div class="spec-value">${m.volt}V</div></div>
+    <div class="spec-item"><div class="spec-label">Motor</div><div class="spec-value">${m.watt}W</div></div>`;
+  document.getElementById('spec-overlay').classList.add('open');
+}
+function closeSpecDrawer(){
+  document.getElementById('spec-overlay').classList.remove('open');
+}
+
+// ---- DISCLAIMER ----
+function goToDisclaimerOrScan(){
+  const accepted = storage.get('mt:disclaimerAccepted');
+  if(accepted==='true') goToScan();
+  else goTo('disclaimer');
+}
+
+function goToScan(){
+  updateStatusBar();
+  goTo('scan');
+}
+
+// ---- SCAN ----
+function initScan(){
+  document.getElementById('scan-devices').innerHTML='';
+  document.getElementById('sim-chip-wrap').style.display='none';
+}
+
+async function doScan(){
+  const btn = document.getElementById('btn-scan');
+  btn.disabled=true;
+  const devList = document.getElementById('scan-devices');
+  devList.innerHTML=`<div class="scan-scanning"><div class="scan-dot-anim"><span></span><span></span><span></span></div> Scanning…</div>`;
+
+  try{
+    const devices = await transport.scan();
+    devList.innerHTML='';
+    if(appState.simMode || !transport.isRealBleAvailable()){
+      document.getElementById('sim-chip-wrap').style.display='flex';
+    }
+    devices.forEach(d=>{
+      const row = document.createElement('div');
+      row.className='device-row';
+      const bars = rssiToBars(d.rssi);
+      row.innerHTML=`
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="var(--acid)" stroke-width="1.5">
+          <path d="M9 12l-.01 0M6 9.5a4.5 4.5 0 0 1 6 0M3 7a8 8 0 0 1 12 0"/>
+        </svg>
+        <div class="device-name">${d.name}</div>
+        <div class="rssi-bars">
+          ${[1,2,3,4].map((n,i)=>`<div class="rssi-bar ${i<bars?'lit':''}" style="height:${6+i*4}px"></div>`).join('')}
+        </div>`;
+      row.onclick=()=>{ appState.selectedDeviceId=d.id; startConnecting(); };
+      devList.appendChild(row);
+    });
+  }catch(e){
+    devList.innerHTML=`<div style="color:var(--txt-2);font-size:13px;">Scan failed — <span style="color:var(--acid);cursor:pointer" onclick="document.getElementById('btn-scan').click()">Try again</span></div>`;
+  }
+  btn.disabled=false;
+}
+
+function rssiToBars(rssi){
+  if(rssi>-55) return 4;
+  if(rssi>-65) return 3;
+  if(rssi>-75) return 2;
+  return 1;
+}
+
+// ---- CONNECTING ----
+const CHAIN_NODES = [
+  { label:'INTERNET',     sub:'secure upstream',    icon:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="22" height="22"><circle cx="12" cy="12" r="9"/><path d="M12 3c-4 3-4 15 0 18M12 3c4 3 4 15 0 18M3 12h18"/></svg>` },
+  { label:'PHONE',        sub:'user device',         icon:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="22" height="22"><rect x="7" y="2" width="10" height="20" rx="2"/><circle cx="12" cy="18" r="1"/></svg>` },
+  { label:'MASTERTUNER',  sub:'secure relay',        icon:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="22" height="22"><polygon points="12,2 22,8 22,16 12,22 2,16 2,8"/><circle cx="12" cy="12" r="3"/></svg>` },
+  { label:'SCOOTER',      sub:'target device',       icon:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="22" height="22"><circle cx="6" cy="18" r="3"/><circle cx="18" cy="18" r="3"/><path d="M6 15l4-8h5l3 4M10 7h6"/></svg>` },
+];
+
+function buildChainDOM(){
+  const wrap = document.getElementById('chain-wrap');
+  wrap.innerHTML='';
+  CHAIN_NODES.forEach((n,i)=>{
+    const node = document.createElement('div');
+    node.className='chain-node';
+    node.id=`chain-node-${i}`;
+    node.innerHTML=`
+      <div class="chain-node-icon" id="chain-icon-${i}">${n.icon}</div>
+      <div class="chain-node-label">
+        <div class="chain-node-name">${n.label}</div>
+        <div class="chain-node-sub" id="chain-sub-${i}">${n.sub}</div>
+      </div>`;
+    wrap.appendChild(node);
+    if(i<CHAIN_NODES.length-1){
+      const link = document.createElement('div');
+      link.className='chain-link';
+      link.id=`chain-link-${i}`;
+      const pkt = document.createElement('div');
+      pkt.className='chain-packet';
+      pkt.id=`chain-pkt-${i}`;
+      link.appendChild(pkt);
+      wrap.appendChild(link);
+    }
+  });
+}
+
+let _connConsoleEl;
+function connLog(msg, cls=''){
+  if(!_connConsoleEl) _connConsoleEl=document.getElementById('conn-console');
+  const line = document.createElement('div');
+  line.className=cls;
+  line.textContent=msg;
+  _connConsoleEl.appendChild(line);
+  _connConsoleEl.scrollTop=_connConsoleEl.scrollHeight;
+}
+
+async function startConnecting(){
+  goTo('connecting');
+  buildChainDOM();
+  _connConsoleEl=document.getElementById('conn-console');
+  _connConsoleEl.innerHTML='';
+  document.getElementById('btn-retry-conn').style.display='none';
+
+  transport.on('step', ({node,label,sub,log})=>{
+    const nodeEl = document.getElementById(`chain-node-${node}`);
+    if(nodeEl) nodeEl.classList.add('lit');
+    const subEl = document.getElementById(`chain-sub-${node}`);
+    if(subEl) subEl.textContent=sub;
+    if(log) connLog(log,'log-ok');
+    // trigger packet on previous link
+    if(node>0){
+      const pkt = document.getElementById(`chain-pkt-${node-1}`);
+      if(pkt){
+        pkt.classList.remove('traveling');
+        void pkt.offsetWidth;
+        pkt.classList.add('traveling');
+        setTimeout(()=>pkt.classList.remove('traveling'),700);
+      }
+    }
+  });
+  transport.on('log', msg=>connLog(msg,'log-ok'));
+
+  try{
+    await transport.connect(appState.selectedDeviceId);
+    appState.connected=true;
+    storage.set('mt:lastScooter', appState.model.id);
+    // pulse whole chain
+    document.getElementById('chain-wrap').classList.add('chain-complete');
+    await _delay(600);
+    initDashboard();
+    goTo('dashboard');
+  }catch(e){
+    connLog(`> ERROR: ${e.message}`,'log-err');
+    document.getElementById('btn-retry-conn').style.display='';
+  }
+}
+
+// ---- DASHBOARD ----
+function initDashboard(){
+  updateStatusBar();
+  renderGauge();
+  renderProfile();
+  renderFeatureCards();
+  startTelemetry();
+  updateLegalityBadge();
+}
+
+// Gauge
+function renderGauge(){
+  const svg = document.getElementById('gauge-svg');
+  const m = appState.model;
+  const stockKmh = m?.stockKmh||25;
+  const maxKmh   = m?.maxKmh||45;
+  const speed     = appState.topSpeed;
+  const LEGAL = 25;
+
+  // Arc from -210deg to 30deg (240 deg sweep), cx=120 cy=120 r=100
+  const cx=120,cy=120,r=100;
+  const startAng=-210, totalAng=240;
+  function arcPath(from,to,rr){
+    const s=degToRad(from), e=degToRad(to);
+    const x1=cx+rr*Math.cos(s), y1=cy+rr*Math.sin(s);
+    const x2=cx+rr*Math.cos(e), y2=cy+rr*Math.sin(e);
+    const large=(to-from)>180?1:0;
+    return `M${x1},${y1} A${rr},${rr} 0 ${large},1 ${x2},${y2}`;
+  }
+  function degToRad(d){ return d*Math.PI/180; }
+  function speedToAng(spd){ return startAng + ((spd-stockKmh)/(maxKmh-stockKmh))*totalAng; }
+
+  const legalAng  = speedToAng(LEGAL);
+  const maxAng    = startAng+totalAng;
+  const curAng    = speedToAng(Math.min(speed,maxKmh));
+  const isOver    = speed > LEGAL;
+
+  svg.innerHTML=`
+    <path d="${arcPath(startAng,legalAng,r)}" fill="none" stroke="rgba(198,255,46,.15)" stroke-width="8" stroke-linecap="round"/>
+    <path d="${arcPath(legalAng,maxAng,r)}"   fill="none" stroke="rgba(255,46,99,.12)"  stroke-width="8" stroke-linecap="round"/>
+    <path d="${arcPath(startAng,curAng,r)}"   fill="none" stroke="${isOver?'var(--danger)':'var(--acid)'}" stroke-width="8" stroke-linecap="round"/>
+    <circle cx="${cx+r*Math.cos(degToRad(curAng))}" cy="${cy+r*Math.sin(degToRad(curAng))}" r="6" fill="${isOver?'var(--danger)':'var(--acid)'}"/>
+    <text x="${cx}" y="${cy-8}" text-anchor="middle" font-family="'Saira Condensed',sans-serif" font-weight="700" font-size="11" fill="var(--txt-2)" letter-spacing="2">STOCK</text>
+    <text x="${cx+r*Math.cos(degToRad(startAng))-6}" y="${cy+r*Math.sin(degToRad(startAng))+4}" font-family="'JetBrains Mono',monospace" font-size="10" fill="var(--txt-2)">${stockKmh}</text>
+    <text x="${cx+r*Math.cos(degToRad(maxAng))+4}"   y="${cy+r*Math.sin(degToRad(maxAng))+4}"  font-family="'JetBrains Mono',monospace" font-size="10" fill="var(--txt-2)">${maxKmh}</text>`;
+
+  const displaySpeed = appState.unitKmh ? speed : (speed*0.621371).toFixed(1);
+  document.getElementById('gauge-display').textContent=displaySpeed;
+  document.getElementById('unit-toggle').textContent=appState.unitKmh?'km/h':'mph';
+
+  const chip = document.getElementById('gauge-chip');
+  chip.textContent= isOver ? `OVER LEGAL LIMIT (+${speed-LEGAL} km/h)` : 'COMPLIANT';
+  chip.classList.toggle('over', isOver);
+
+  const slider = document.getElementById('speed-slider');
+  slider.min = stockKmh; slider.max = maxKmh; slider.value = speed;
+  slider.classList.toggle('danger', isOver);
+}
+
+function updateLegalityBadge(){
+  const over = appState.topSpeed > 25;
+  document.getElementById('badge-led').className=`badge-led ${over?'red':'green'}`;
+  document.getElementById('badge-text').textContent=over?'RESTRICTED MODE':'COMPLIANT';
+}
+
+// Profile
+function renderProfile(){
+  document.querySelectorAll('.profile-btn').forEach(btn=>{
+    const p = btn.dataset.profile;
+    btn.classList.remove('active','insane-active');
+    if(p===appState.profile){
+      if(p==='INSANE') btn.classList.add('insane-active');
+      else btn.classList.add('active');
+    }
+  });
+}
+
+// Telemetry
+function startTelemetry(){
+  if(appState.telemUnsub) appState.telemUnsub();
+  appState.telemUnsub = transport.subscribeTelemetry(t=>{
+    const battPct = parseInt(t.batt);
+    const isLow = battPct < 15;
+    document.getElementById('t-batt').textContent=`${t.batt}%`;
+    document.getElementById('t-batt').className=`telem-val${isLow?' warn':''}`;
+    document.getElementById('t-volt').textContent=`${t.volt}V`;
+    document.getElementById('t-temp').textContent=`${t.temp}°C`;
+    document.getElementById('t-odo').textContent=`${Number(t.odo).toLocaleString()}km`;
+    document.getElementById('t-trip').textContent=`${t.trip}km`;
+    document.getElementById('t-rssi').textContent=`${t.rssi}dBm`;
+    document.getElementById('sb-batt').textContent=`${t.batt}%`;
+    document.getElementById('sb-rssi').textContent=`${t.rssi}dBm`;
+    // disable dangerous features on low battery
+    const nitroCrd = document.getElementById('feat-card-nitro');
+    const insaneBtn = document.querySelector('[data-profile="INSANE"]');
+    if(nitroCrd){ nitroCrd.style.opacity=isLow?'.4':'1'; nitroCrd.style.pointerEvents=isLow?'none':''; }
+    if(insaneBtn && isLow){ insaneBtn.title='Disabled: low battery'; insaneBtn.disabled=true; }
+    else if(insaneBtn){ insaneBtn.title=''; insaneBtn.disabled=false; }
+  });
+}
+
+// Feature cards
+function renderFeatureCards(){
+  const grid = document.getElementById('feature-grid');
+  grid.innerHTML='';
+  FEATURES.forEach(f=>{
+    const card = document.createElement('div');
+    card.className='feature-card';
+    card.id=`feat-card-${f.id}`;
+    card.innerHTML=buildFeatureCard(f);
+    grid.appendChild(card);
+    wireFeatureCard(card, f);
+  });
+}
+
+function accentColor(a){ return a==='danger'?'var(--danger)':a==='info'?'var(--info)':a==='warn'?'var(--warn)':'var(--acid)'; }
+
+function buildFeatureCard(f){
+  const iconBg = f.accent==='danger'?'rgba(255,46,99,.1)':f.accent==='info'?'rgba(46,230,255,.1)':f.accent==='warn'?'rgba(255,159,28,.1)':'rgba(198,255,46,.1)';
+  const iconStr = `<svg viewBox="0 0 20 20" fill="none" stroke="${accentColor(f.accent)}" stroke-width="1.5">${f.icon.match(/<svg[^>]*>([\s\S]*)<\/svg>/)?.[1]||''}</svg>`;
+
+  let ctrl = '';
+  if(f.ctrl==='toggle'){
+    const on = appState.features[f.id];
+    ctrl=`<div class="toggle-wrap"><span style="font-size:12px;color:var(--txt-2);font-family:'JetBrains Mono',monospace;" id="feat-lbl-${f.id}">${on?'ON':'OFF'}</span><div class="led ${on?'ok':''}" id="feat-led-${f.id}"></div><div class="toggle ${on?'on':''}" id="feat-toggle-${f.id}" role="switch" aria-checked="${on}" tabindex="0"></div></div>`;
+  } else if(f.ctrl==='toggle+slider'){
+    const on = appState.features[f.id];
+    const sv = appState.features[f.sliderKey]??f.sliderMin??1;
+    ctrl=`
+      <div class="toggle-wrap"><span style="font-size:12px;color:var(--txt-2);font-family:'JetBrains Mono',monospace;" id="feat-lbl-${f.id}">${on?'ON':'OFF'}</span><div class="led ${on?'ok':''}" id="feat-led-${f.id}"></div><div class="toggle ${on?'on':''}" id="feat-toggle-${f.id}" role="switch" aria-checked="${on}" tabindex="0"></div></div>
+      <div class="range-wrap"><div class="range-label"><span>SENSITIVITY</span><span id="feat-sv-${f.id}" class="font-mono">${sv}</span></div><input type="range" id="feat-slider-${f.id}" min="${f.sliderMin}" max="${f.sliderMax}" value="${sv}"></div>`;
+  } else if(f.ctrl==='momentary'){
+    ctrl=`<div style="display:flex;align-items:center;gap:10px;"><button class="btn btn-danger" id="feat-btn-${f.id}" style="font-size:13px;padding:10px 18px;">${f.name.toUpperCase()}</button><div class="led" id="feat-led-${f.id}"></div></div>`;
+  } else if(f.ctrl==='nitro'){
+    ctrl=`<div class="nitro-btn-wrap">
+      <button class="btn btn-danger" id="feat-btn-${f.id}" style="font-size:13px;padding:10px 18px;">BOOST</button>
+      <div class="cooldown-ring-wrap"><svg class="cooldown-svg" viewBox="0 0 40 40"><circle class="cooldown-track" cx="20" cy="20" r="16"/><circle class="cooldown-fill" id="nitro-ring" cx="20" cy="20" r="16"/></svg></div>
+      <div class="led" id="feat-led-${f.id}"></div></div>`;
+  } else if(f.ctrl==='curve'){
+    const pts = appState.features.throttleCurve;
+    ctrl=`<div class="curve-editor"><canvas class="curve-svg" id="curve-canvas" width="280" height="80"></canvas></div>`;
+  }
+
+  return `
+    <div class="feature-header">
+      <div class="feature-icon" style="background:${iconBg}">${f.icon}</div>
+      <div class="feature-title-wrap">
+        <div class="feature-name">${f.name}</div>
+        <div class="feature-desc">${f.desc}</div>
+      </div>
+    </div>
+    <div class="feature-controls">${ctrl}</div>`;
+}
+
+function wireFeatureCard(card, f){
+  if(f.ctrl==='toggle'||f.ctrl==='toggle+slider'){
+    const tog = card.querySelector(`#feat-toggle-${f.id}`);
+    if(tog) tog.addEventListener('click', ()=>doToggle(f, card));
+    if(tog) tog.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); doToggle(f,card); } });
+
+    if(f.ctrl==='toggle+slider'){
+      const sl = card.querySelector(`#feat-slider-${f.id}`);
+      if(sl) sl.addEventListener('input', ()=>{
+        const v=parseInt(sl.value);
+        appState.features[f.sliderKey]=v;
+        const sv = card.querySelector(`#feat-sv-${f.id}`);
+        if(sv) sv.textContent=v;
+        doWrite(f.sliderKey, v, card, f.accent);
+        queueSaveTune();
+      });
+    }
+  } else if(f.ctrl==='momentary'){
+    const btn = card.querySelector(`#feat-btn-${f.id}`);
+    if(btn) btn.addEventListener('click', ()=>doMomentary(f, card));
+  } else if(f.ctrl==='nitro'){
+    const btn = card.querySelector(`#feat-btn-${f.id}`);
+    if(btn) btn.addEventListener('click', ()=>doNitro(card));
+  } else if(f.ctrl==='curve'){
+    setTimeout(()=>initCurveEditor(card), 100);
+  }
+}
+
+async function doToggle(f, card){
+  const isOn = !appState.features[f.id];
+  appState.features[f.id]=isOn;
+
+  // Special: eco nudges INSANE off
+  if(f.id==='eco'&&isOn&&appState.profile==='INSANE'){ applyProfile('NORMAL'); }
+
+  const tog = card.querySelector(`#feat-toggle-${f.id}`);
+  const lbl = card.querySelector(`#feat-lbl-${f.id}`);
+  const led = card.querySelector(`#feat-led-${f.id}`);
+  if(tog){ tog.className=`toggle ${isOn?(f.accent==='danger'?'danger-on':'on'):''}`;  tog.setAttribute('aria-checked',isOn); }
+  if(lbl) lbl.textContent=isOn?'ON':'OFF';
+
+  queueSaveTune();
+  await doWrite(f.id, isOn?1:0, card, f.accent, led);
+}
+
+async function doMomentary(f, card){
+  const led = card.querySelector(`#feat-led-${f.id}`);
+  await doWrite(f.id, 1, card, f.accent, led);
+  if(f.id==='panic') showToast('PANIC — motor cut + alarm armed');
+}
+
+let _nitroCooldown=false;
+async function doNitro(card){
+  if(_nitroCooldown) return;
+  _nitroCooldown=true;
+  const btn = card.querySelector('#feat-btn-nitro');
+  const ring = card.querySelector('#nitro-ring');
+  const led = card.querySelector('#feat-led-nitro');
+  if(btn) btn.disabled=true;
+  await doWrite('nitro',1,card,'danger',led);
+  addConsoleLog('nitro','BOOST ACTIVE — 6s');
+  // 6s boost
+  await _delay(6000);
+  addConsoleLog('nitro','boost ended — 30s cooldown');
+  // 30s cooldown ring
+  if(ring){
+    let progress=0;
+    const circ=100;
+    const step=()=>{
+      progress=Math.min(100,progress+100/30);
+      ring.style.strokeDashoffset=(circ*(1-progress/100)).toFixed(1);
+      if(progress<100) setTimeout(step,1000);
+      else{ _nitroCooldown=false; if(btn) btn.disabled=false; ring.style.strokeDashoffset=circ; addConsoleLog('nitro','cooldown complete'); }
+    };
+    step();
+  } else {
+    setTimeout(()=>{ _nitroCooldown=false; if(btn) btn.disabled=false; }, 30000);
+  }
+}
+
+// Write micro-animation
+async function doWrite(key, value, card, accent='acid', led=null){
+  if(led) led.className='led writing';
+  card.classList.remove('flash-acid','flash-danger');
+  void card.offsetWidth;
+  card.classList.add(accent==='danger'?'flash-danger':'flash-acid');
+  try{
+    const res = await transport.writeParam(key, value);
+    if(led) led.className='led ok';
+    addConsoleLog(key, value, res.latencyMs);
+    setTimeout(()=>{ if(led) led.className='led ok'; },2000);
+  }catch(e){
+    if(led) led.className='led nak';
+    addConsoleLog(key, value, null, true);
+    // auto-retry once
+    await _delay(300);
+    try{
+      const res2 = await transport.writeParam(key, value);
+      if(led) led.className='led ok';
+      addConsoleLog(key, value, res2.latencyMs, false, true);
+    }catch{
+      if(led) led.className='led nak';
+    }
+  }
+}
+
+// Console
+let _consoleOpen=false;
+function addConsoleLog(key, value, latMs=null, nak=false, retry=false){
+  const body = document.getElementById('console-body');
+  if(!body) return;
+  const now = new Date();
+  const ts = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
+  const line = document.createElement('div');
+  line.className='console-line';
+  const suffix = nak?`<span class="nak">NAK — retrying…</span>`:retry?`<span class="ack">ACK (retry) +${latMs}ms</span>`:`<span class="ack">ACK${latMs!=null?` +${latMs}ms`:''}</span>`;
+  line.innerHTML=`<span class="ts">[${ts}]</span> write <span class="kv">${key}=${value}</span> → ${suffix}`;
+  body.appendChild(line);
+  body.scrollTop=body.scrollHeight;
+}
+
+function initCurveEditor(card){
+  const canvas = card.querySelector('#curve-canvas');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let pts = [...appState.features.throttleCurve];
+  const W=canvas.width, H=canvas.height;
+  const pad=10;
+  function ptToXY(i,v){ return [pad+i*((W-2*pad)/4), H-pad-v*(H-2*pad)/100]; }
+  let dragging=-1;
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    // grid
+    ctx.strokeStyle='rgba(35,39,47,.8)'; ctx.lineWidth=1;
+    for(let i=0;i<=4;i++){ const x=pad+i*((W-2*pad)/4); ctx.beginPath(); ctx.moveTo(x,pad); ctx.lineTo(x,H-pad); ctx.stroke(); }
+    // curve
+    ctx.beginPath(); ctx.strokeStyle='var(--acid)'; ctx.lineWidth=2;
+    pts.forEach((v,i)=>{ const [x,y]=ptToXY(i,v); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
+    ctx.stroke();
+    // points
+    pts.forEach((v,i)=>{ const [x,y]=ptToXY(i,v); ctx.beginPath(); ctx.arc(x,y,5,0,Math.PI*2); ctx.fillStyle='var(--acid)'; ctx.fill(); });
+  }
+  draw();
+
+  function getEvtPos(e){ const r=canvas.getBoundingClientRect(); const t=e.touches?e.touches[0]:e; return [t.clientX-r.left,t.clientY-r.top]; }
+  function findNearest(ex,ey){ let best=-1,bd=1e9; pts.forEach((v,i)=>{ const [x,y]=ptToXY(i,v); const d=Math.hypot(ex-x,ey-y); if(d<bd){bd=d;best=i;} }); return bd<20?best:-1; }
+
+  canvas.addEventListener('mousedown', e=>{ dragging=findNearest(...getEvtPos(e)); });
+  canvas.addEventListener('touchstart', e=>{ e.preventDefault(); dragging=findNearest(...getEvtPos(e)); },{passive:false});
+  const onMove=(e)=>{ if(dragging<0) return; e.preventDefault(); const [ex,ey]=getEvtPos(e); const newV=Math.max(0,Math.min(100,((H-pad-ey)/(H-2*pad))*100)); pts[dragging]=Math.round(newV); draw(); };
+  canvas.addEventListener('mousemove', onMove);
+  canvas.addEventListener('touchmove', onMove, {passive:false});
+  const onUp=()=>{ if(dragging>=0){ appState.features.throttleCurve=[...pts]; doWrite('throttleCurve',pts.join(','),card,'acid'); queueSaveTune(); } dragging=-1; };
+  canvas.addEventListener('mouseup', onUp);
+  canvas.addEventListener('touchend', onUp);
+}
+
+function updateStatusBar(){
+  const m = appState.model;
+  document.getElementById('sb-model').textContent = m ? m.name.toUpperCase() : '—';
+  ['sd0','sd1','sd2','sd3'].forEach(id=>document.getElementById(id).classList.toggle('lit', appState.connected));
+}
+
+function applyProfile(p){
+  appState.profile=p;
+  renderProfile();
+  const prof=PROFILES[p];
+  if(!prof) return;
+  const m=appState.model;
+  if(m){
+    appState.topSpeed=Math.min(Math.round(m.maxKmh*prof.speedPct), m.maxKmh);
+    if(appState.topSpeed<25) appState.topSpeed=25;
+  }
+  appState.features.throttleCurve=[...prof.throttleCurve];
+  appState.features.regenLevel=prof.regenLevel;
+  appState.features.brutalTorque=prof.brutalTorque;
+  renderGauge();
+  updateLegalityBadge();
+  queueSaveTune();
+  addConsoleLog('profile', p);
+  if(p==='INSANE') showToast('INSANE MODE — USE ON CLOSED COURSE ONLY');
+}
+
+function showToast(msg, dur=2500){
+  const el=document.getElementById('toast');
+  el.textContent=msg;
+  el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'), dur);
+}
+
+function doDisconnect(){
+  if(appState.telemUnsub){ appState.telemUnsub(); appState.telemUnsub=null; }
+  transport.disconnect();
+  appState.connected=false;
+  document.getElementById('status-bar').classList.remove('visible');
+  document.getElementById('legality-badge').classList.remove('visible');
+  ['sd0','sd1','sd2','sd3'].forEach(id=>document.getElementById(id).classList.remove('lit'));
+  initSplash();
+  goTo('splash');
+}
+
+/* ============================================================
+   8. Event wiring
+   ============================================================ */
+function wireEvents(){
+  // Kebab menu
+  document.getElementById('kebab-btn').onclick=(e)=>{
+    e.stopPropagation();
+    document.getElementById('kebab-menu').classList.toggle('open');
+  };
+  document.addEventListener('click',()=>document.getElementById('kebab-menu').classList.remove('open'));
+  document.getElementById('kebab-menu').onclick=(e)=>{
+    const a=e.target.dataset.action;
+    if(a==='disconnect'){ doDisconnect(); }
+    else if(a==='rescan'){ if(appState.telemUnsub){appState.telemUnsub();appState.telemUnsub=null;} appState.connected=false; goToScan(); }
+    else if(a==='reset'){ appState.topSpeed=appState.model?.stockKmh||25; applyProfile('NORMAL'); Object.keys(appState.features).forEach(k=>{ if(typeof appState.features[k]==='boolean') appState.features[k]=false; }); renderGauge(); renderFeatureCards(); updateLegalityBadge(); showToast('Tune reset to stock'); }
+    else if(a==='about'){ showToast('MasterTuner v1.0 — Simulation Mode'); }
+  };
+
+  // Brand search
+  document.getElementById('brand-search').oninput=e=>renderBrands(e.target.value);
+
+  // Model back
+  document.getElementById('model-back').onclick=()=>goTo('brand');
+
+  // Spec drawer
+  document.getElementById('spec-overlay').addEventListener('click', e=>{ if(e.target===document.getElementById('spec-overlay')) closeSpecDrawer(); });
+  document.getElementById('btn-select-model').onclick=()=>{
+    if(!_selectedModelForDrawer) return;
+    appState.model=_selectedModelForDrawer;
+    appState.topSpeed=_selectedModelForDrawer.stockKmh;
+    loadTune();
+    closeSpecDrawer();
+    goToDisclaimerOrScan();
+  };
+
+  // Disclaimer
+  document.getElementById('disclaimer-check').onchange=e=>{
+    document.getElementById('btn-agree').disabled=!e.target.checked;
+  };
+  document.getElementById('btn-agree').onclick=()=>{
+    storage.set('mt:disclaimerAccepted','true');
+    goToScan();
+  };
+  document.getElementById('btn-cancel-disclaimer').onclick=()=>goTo('model');
+
+  // Scan back
+  document.getElementById('scan-back').onclick=()=>goTo('model');
+  document.getElementById('btn-scan').onclick=doScan;
+
+  // Retry connect
+  document.getElementById('btn-retry-conn').onclick=()=>startConnecting();
+
+  // Unit toggle
+  document.getElementById('unit-toggle').onclick=()=>{
+    appState.unitKmh=!appState.unitKmh;
+    storage.set('mt:unit', appState.unitKmh?'kmh':'mph');
+    renderGauge();
+  };
+
+  // Speed slider
+  document.getElementById('speed-slider').oninput=e=>{
+    appState.topSpeed=parseInt(e.target.value);
+    renderGauge();
+    updateLegalityBadge();
+  };
+  document.getElementById('btn-apply-speed').onclick=async()=>{
+    const card = document.getElementById('gauge-card');
+    const btn  = document.getElementById('btn-apply-speed');
+    btn.disabled=true;
+    await doWrite('topSpeed', appState.topSpeed, card, appState.topSpeed>25?'danger':'acid');
+    btn.disabled=false;
+    queueSaveTune();
+  };
+
+  // Profile buttons
+  document.getElementById('profile-row').onclick=e=>{
+    const btn=e.target.closest('.profile-btn');
+    if(btn) applyProfile(btn.dataset.profile);
+  };
+
+  // Console toggle
+  document.getElementById('console-toggle-btn').onclick=()=>{
+    _consoleOpen=!_consoleOpen;
+    document.getElementById('console-body').classList.toggle('open',_consoleOpen);
+    document.getElementById('console-toggle-label').textContent=_consoleOpen?'▲ HIDE':'▼ SHOW';
+  };
+
+  // Disconnect footer
+  document.getElementById('btn-disconnect').onclick=doDisconnect;
+}
+
+/* ============================================================
+   9. boot()
+   ============================================================ */
+function boot(){
+  initTransport();
+  wireEvents();
+  renderBrands();
+
+  // Restore unit pref
+  const u = storage.get('mt:unit');
+  if(u) appState.unitKmh = u==='kmh';
+
+  initSplash();
+  goTo('splash', true);
+}
+
+boot();
+</script>
+</body>
+</html>
