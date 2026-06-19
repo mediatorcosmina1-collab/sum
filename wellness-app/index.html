@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mama – Asistentul tău de wellness</title>
+<style>
+  :root{
+    --bg1:#fff5f0;
+    --bg2:#ffe9f0;
+    --bg3:#f3f0ff;
+    --card:#ffffff;
+    --ink:#4a3b48;
+    --ink-soft:#8a7b88;
+    --accent:#ff8aa0;
+    --accent-2:#ffb27a;
+    --accent-3:#b89bff;
+    --green:#9fd8a6;
+    --blue:#8fc7f0;
+    --shadow:0 14px 40px rgba(180,120,150,.18);
+    --shadow-sm:0 6px 18px rgba(180,120,150,.14);
+    --radius:26px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+    color:var(--ink);
+    min-height:100vh;
+    background:linear-gradient(135deg,var(--bg1),var(--bg2) 45%,var(--bg3));
+    background-attachment:fixed;
+    padding:24px 16px 60px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:520px;margin:0 auto;}
+
+  /* ---------- HEADER ---------- */
+  header{text-align:center;padding:14px 0 24px;}
+  .avatar{
+    width:96px;height:96px;border-radius:50%;margin:0 auto 14px;
+    background:radial-gradient(circle at 35% 30%,#ffd5c2,#ff9eb0 70%);
+    display:flex;align-items:center;justify-content:center;
+    font-size:46px;box-shadow:var(--shadow);
+    position:relative;animation:bob 4s ease-in-out infinite;
+  }
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+  .avatar::after{
+    content:"";position:absolute;bottom:6px;right:6px;
+    width:20px;height:20px;border-radius:50%;background:var(--green);
+    border:3px solid #fff;
+  }
+  h1{font-size:26px;font-weight:800;letter-spacing:.3px;}
+  .tagline{color:var(--ink-soft);font-size:14px;margin-top:4px;}
+
+  /* ---------- CARD ---------- */
+  .card{
+    background:var(--card);border-radius:var(--radius);
+    padding:22px;box-shadow:var(--shadow);margin-bottom:18px;
+  }
+  .card h2{font-size:17px;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+  .card h2 .em{font-size:20px;}
+  .sub{color:var(--ink-soft);font-size:13px;margin-bottom:14px;}
+
+  /* ---------- MOM MESSAGE ---------- */
+  .mom-card{
+    background:linear-gradient(135deg,#fff 0%,#fff5f7 100%);
+    border:2px solid #ffe1e8;
+  }
+  #momMessage{font-size:16px;line-height:1.6;font-weight:500;}
+  .mom-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;}
+  .pill{
+    border:none;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;
+    padding:9px 16px;border-radius:30px;background:#fff0f3;color:var(--accent);
+    transition:transform .15s,box-shadow .15s;box-shadow:var(--shadow-sm);
+  }
+  .pill:hover{transform:translateY(-2px);}
+
+  /* ---------- MOOD ---------- */
+  .moods{display:flex;justify-content:space-between;gap:8px;}
+  .mood{
+    flex:1;background:#faf7fb;border:2px solid transparent;border-radius:18px;
+    padding:12px 4px;text-align:center;cursor:pointer;transition:.18s;
+  }
+  .mood:hover{transform:translateY(-3px);}
+  .mood .face{font-size:30px;display:block;}
+  .mood .lbl{font-size:11px;color:var(--ink-soft);margin-top:4px;}
+  .mood.sel{border-color:var(--accent);background:#fff0f3;box-shadow:var(--shadow-sm);}
+
+  /* ---------- WATER ---------- */
+  .water-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+  .water-count{font-size:30px;font-weight:800;color:var(--blue);}
+  .water-count span{font-size:14px;color:var(--ink-soft);font-weight:500;}
+  .glasses{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px;}
+  .glass{
+    width:34px;height:42px;border-radius:6px 6px 12px 12px;
+    border:2px solid #cfe6f7;background:#f2f9ff;cursor:pointer;
+    display:flex;align-items:flex-end;justify-content:center;font-size:16px;
+    transition:.2s;overflow:hidden;position:relative;
+  }
+  .glass.full{background:linear-gradient(to top,#7fc2f0,#bfe2fa);border-color:#7fc2f0;}
+  .btn-row{display:flex;gap:10px;}
+  .btn{
+    flex:1;border:none;cursor:pointer;font-family:inherit;font-weight:700;font-size:14px;
+    padding:13px;border-radius:16px;color:#fff;transition:transform .15s,filter .15s;
+    box-shadow:var(--shadow-sm);
+  }
+  .btn:hover{transform:translateY(-2px);}
+  .btn:active{transform:translateY(0);}
+  .btn-blue{background:linear-gradient(135deg,#8fc7f0,#6fb0e8);}
+  .btn-ghost{background:#f3eef6;color:var(--ink-soft);box-shadow:none;}
+  .btn-pink{background:linear-gradient(135deg,var(--accent),#ff7a93);}
+
+  /* ---------- BREATHING ---------- */
+  .breath-stage{display:flex;flex-direction:column;align-items:center;padding:8px 0;}
+  .breath-circle{
+    width:150px;height:150px;border-radius:50%;
+    background:radial-gradient(circle at 40% 35%,#d8c9ff,#b89bff);
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;font-weight:700;font-size:16px;text-align:center;
+    transition:transform 4s ease-in-out;box-shadow:0 10px 30px rgba(184,155,255,.45);
+  }
+  .breath-circle.in{transform:scale(1.35);}
+  .breath-circle.hold{transform:scale(1.35);}
+  .breath-circle.out{transform:scale(1);}
+  .breath-hint{margin-top:16px;color:var(--ink-soft);font-size:13px;min-height:18px;}
+
+  /* ---------- GRATITUDE ---------- */
+  textarea{
+    width:100%;border:2px solid #f0e6ec;border-radius:16px;padding:13px;
+    font-family:inherit;font-size:14px;resize:vertical;min-height:64px;color:var(--ink);
+    background:#fdfbfd;
+  }
+  textarea:focus{outline:none;border-color:var(--accent);}
+  .grat-list{margin-top:14px;display:flex;flex-direction:column;gap:8px;}
+  .grat-item{
+    background:#fff7f0;border-radius:14px;padding:11px 14px;font-size:14px;
+    display:flex;align-items:flex-start;gap:8px;animation:pop .25s ease;
+  }
+  @keyframes pop{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+  .grat-item .x{margin-left:auto;cursor:pointer;color:var(--ink-soft);font-weight:700;border:none;background:none;font-size:16px;}
+
+  /* ---------- CHAT ---------- */
+  #chatLog{display:flex;flex-direction:column;gap:10px;max-height:300px;overflow-y:auto;padding:4px;margin-bottom:12px;}
+  .msg{padding:11px 15px;border-radius:18px;font-size:14px;line-height:1.5;max-width:85%;animation:pop .2s ease;}
+  .msg.mom{background:#fff0f3;color:var(--ink);align-self:flex-start;border-bottom-left-radius:5px;}
+  .msg.me{background:linear-gradient(135deg,var(--accent),#ff7a93);color:#fff;align-self:flex-end;border-bottom-right-radius:5px;}
+  .chat-input{display:flex;gap:8px;}
+  .chat-input input{
+    flex:1;border:2px solid #f0e6ec;border-radius:30px;padding:12px 18px;
+    font-family:inherit;font-size:14px;background:#fdfbfd;color:var(--ink);
+  }
+  .chat-input input:focus{outline:none;border-color:var(--accent);}
+  .chat-send{
+    border:none;border-radius:50%;width:46px;height:46px;cursor:pointer;
+    background:linear-gradient(135deg,var(--accent),#ff7a93);color:#fff;font-size:18px;
+    flex-shrink:0;box-shadow:var(--shadow-sm);
+  }
+  .quick{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+  .quick button{
+    border:1px solid #ffd9e1;background:#fff;color:var(--accent);cursor:pointer;
+    font-family:inherit;font-size:12px;padding:7px 13px;border-radius:20px;
+  }
+  .quick button:hover{background:#fff0f3;}
+
+  footer{text-align:center;color:var(--ink-soft);font-size:12px;margin-top:10px;line-height:1.6;}
+  .heart{color:var(--accent);}
+
+  /* toast */
+  #toast{
+    position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(120px);
+    background:var(--ink);color:#fff;padding:13px 22px;border-radius:30px;font-size:14px;
+    box-shadow:var(--shadow);transition:transform .35s cubic-bezier(.2,.9,.3,1.3);z-index:50;max-width:90%;
+  }
+  #toast.show{transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="avatar">👩‍🦰</div>
+    <h1>Mama</h1>
+    <p class="tagline">Asistentul tău de wellness, mereu alături de tine</p>
+  </header>
+
+  <!-- MOM MESSAGE -->
+  <div class="card mom-card">
+    <h2><span class="em">💌</span> Un mesaj de la mama</h2>
+    <div id="momMessage">…</div>
+    <div class="mom-actions">
+      <button class="pill" onclick="newAdvice()">🌷 Alt sfat</button>
+      <button class="pill" onclick="newAffirmation()">✨ Încurajează-mă</button>
+    </div>
+  </div>
+
+  <!-- MOOD -->
+  <div class="card">
+    <h2><span class="em">🌈</span> Cum te simți acum?</h2>
+    <p class="sub">Spune-i mamei ca să aibă grijă de tine azi.</p>
+    <div class="moods" id="moods">
+      <div class="mood" data-mood="grozav"><span class="face">😄</span><span class="lbl">Grozav</span></div>
+      <div class="mood" data-mood="bine"><span class="face">🙂</span><span class="lbl">Bine</span></div>
+      <div class="mood" data-mood="asa-asa"><span class="face">😐</span><span class="lbl">Așa-așa</span></div>
+      <div class="mood" data-mood="trist"><span class="face">😔</span><span class="lbl">Trist</span></div>
+      <div class="mood" data-mood="obosit"><span class="face">😴</span><span class="lbl">Obosit</span></div>
+    </div>
+  </div>
+
+  <!-- WATER -->
+  <div class="card">
+    <h2><span class="em">💧</span> Hidratare</h2>
+    <div class="water-top">
+      <div class="water-count"><span id="waterNum">0</span><span> / 8 pahare</span></div>
+      <button class="btn-ghost btn" style="flex:0;padding:9px 14px;" onclick="resetWater()">Reset</button>
+    </div>
+    <div class="glasses" id="glasses"></div>
+    <div class="btn-row">
+      <button class="btn btn-blue" onclick="addWater()">+ Un pahar de apă</button>
+    </div>
+  </div>
+
+  <!-- BREATHING -->
+  <div class="card">
+    <h2><span class="em">🫧</span> Respiră cu mama</h2>
+    <p class="sub">Un exercițiu de calm: inspiră 4s · ține 4s · expiră 4s.</p>
+    <div class="breath-stage">
+      <div class="breath-circle out" id="breathCircle">Apasă start</div>
+      <div class="breath-hint" id="breathHint"></div>
+    </div>
+    <div class="btn-row" style="margin-top:16px;">
+      <button class="btn btn-pink" id="breathBtn" onclick="toggleBreath()">▶ Start</button>
+    </div>
+  </div>
+
+  <!-- GRATITUDE -->
+  <div class="card">
+    <h2><span class="em">🌻</span> Jurnalul de recunoștință</h2>
+    <p class="sub">Pentru ce ești recunoscător azi?</p>
+    <textarea id="gratInput" placeholder="Azi sunt recunoscător pentru…"></textarea>
+    <div class="btn-row" style="margin-top:12px;">
+      <button class="btn btn-pink" onclick="addGratitude()">Adaugă în jurnal</button>
+    </div>
+    <div class="grat-list" id="gratList"></div>
+  </div>
+
+  <!-- CHAT -->
+  <div class="card">
+    <h2><span class="em">💬</span> Vorbește cu mama</h2>
+    <div id="chatLog"></div>
+    <div class="quick">
+      <button onclick="quick('Sunt stresat')">😣 Sunt stresat</button>
+      <button onclick="quick('Nu pot dormi')">😴 Nu pot dormi</button>
+      <button onclick="quick('Mi-e foame')">🍎 Mi-e foame</button>
+      <button onclick="quick('Mă simt singur')">🤍 Mă simt singur</button>
+    </div>
+    <div class="chat-input">
+      <input id="chatInput" placeholder="Scrie-i mamei…" onkeydown="if(event.key==='Enter')sendChat()">
+      <button class="chat-send" onclick="sendChat()">➤</button>
+    </div>
+  </div>
+
+  <footer>
+    Făcut cu <span class="heart">♥</span> pentru sufletul tău.<br>
+    Mama nu înlocuiește un medic — la nevoie, cere ajutor specializat.
+  </footer>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ============ STORAGE HELPERS ============ */
+const store = {
+  get(k,d){ try{return JSON.parse(localStorage.getItem('wm_'+k)) ?? d;}catch(e){return d;} },
+  set(k,v){ localStorage.setItem('wm_'+k,JSON.stringify(v)); }
+};
+const today = () => new Date().toISOString().slice(0,10);
+
+/* ============ TOAST ============ */
+let toastTimer;
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),2600);
+}
+
+/* ============ MOM MESSAGES ============ */
+const advices=[
+  "Puișor, ai băut un pahar cu apă azi? Hai să avem grijă de noi. 💧",
+  "Nu uita să te ridici și să te întinzi puțin. Corpul tău îți mulțumește. 🤸",
+  "Respiră adânc de trei ori. Gata… ești mai liniștit acum? 🫧",
+  "Mănâncă ceva bun și sănătos azi, mami. Un fruct e perfect. 🍎",
+  "Ești mai puternic decât crezi. Pas cu pas, te descurci minunat. 💪",
+  "Pune telefonul jos câteva minute și uită-te pe geam. Odihnește-ți ochii. 👀",
+  "Culcă-te puțin mai devreme în seara asta. Somnul vindecă totul. 🌙",
+  "Ai zâmbit azi? Hai, măcar pentru mine, un zâmbet mic. 😊",
+  "Fă o scurtă plimbare. Aerul curat îți limpezește mintea. 🌳",
+  "Ești suficient exact așa cum ești. Te iubesc. 🤍"
+];
+const affirmations=[
+  "Sunt mândră de tine. Faci tot ce poți, și asta e de ajuns. 🌟",
+  "Orice ar fi azi, treci și peste asta. Te știu puternic. 💗",
+  "Meriți odihnă, blândețe și lucruri bune. Nu uita asta. 🌷",
+  "Greșelile sunt doar lecții. Mâine e o nouă șansă, comoara mea. 🌅",
+  "Te iubesc necondiționat, indiferent ce se întâmplă. 🫂",
+  "Ai un suflet bun. Lumea e mai frumoasă cu tine în ea. ✨",
+  "Inspiră curaj, expiră teamă. Eu cred în tine. 🕊️"
+];
+let lastAdvice=-1,lastAff=-1;
+function pick(arr,last){let i;do{i=Math.floor(Math.random()*arr.length);}while(i===last&&arr.length>1);return i;}
+function newAdvice(){lastAdvice=pick(advices,lastAdvice);document.getElementById('momMessage').textContent=advices[lastAdvice];}
+function newAffirmation(){lastAff=pick(affirmations,lastAff);document.getElementById('momMessage').textContent=affirmations[lastAff];}
+function greet(){
+  const h=new Date().getHours();
+  let g = h<11?"Bună dimineața, puișor! ☀️ ": h<18?"Bună, comoara mea! 🌼 ":"Bună seara, dragul meu! 🌙 ";
+  document.getElementById('momMessage').textContent = g + advices[pick(advices,-1)];
+}
+
+/* ============ MOOD ============ */
+const moodReplies={
+  "grozav":"Ce mă bucur! Ține minte ziua asta și bucură-te de ea. 🌞",
+  "bine":"Mă bucur, scumpule. Hai să o ținem tot așa azi. 🙂",
+  "asa-asa":"E în regulă să fie și zile așa. Fii blând cu tine. Hai să respirăm un pic împreună. 🫧",
+  "trist":"Vino la mama. E ok să fii trist. Trece și asta, îți promit. 🤍",
+  "obosit":"Odihnește-te, comoara mea. Un pic de apă și o pauză te ajută. 💧"
+};
+function setupMoods(){
+  const saved=store.get('mood',{});
+  document.querySelectorAll('.mood').forEach(el=>{
+    if(saved.date===today() && saved.mood===el.dataset.mood) el.classList.add('sel');
+    el.onclick=()=>{
+      document.querySelectorAll('.mood').forEach(m=>m.classList.remove('sel'));
+      el.classList.add('sel');
+      store.set('mood',{date:today(),mood:el.dataset.mood});
+      toast(moodReplies[el.dataset.mood]);
+      addChat('mom',moodReplies[el.dataset.mood]);
+    };
+  });
+}
+
+/* ============ WATER ============ */
+const WATER_MAX=8;
+function getWater(){const w=store.get('water',{date:'',n:0});if(w.date!==today())return 0;return w.n;}
+function setWater(n){store.set('water',{date:today(),n});renderWater();}
+function renderWater(){
+  const n=getWater();
+  document.getElementById('waterNum').textContent=n;
+  const g=document.getElementById('glasses');g.innerHTML='';
+  for(let i=0;i<WATER_MAX;i++){
+    const d=document.createElement('div');
+    d.className='glass'+(i<n?' full':'');
+    d.textContent=i<n?'💧':'';
+    d.onclick=()=>setWater(i<n?i:i+1);
+    g.appendChild(d);
+  }
+}
+function addWater(){
+  let n=getWater();
+  if(n>=WATER_MAX){toast("Bravo! Ai băut destulă apă azi. 🎉");return;}
+  n++;setWater(n);
+  if(n>=WATER_MAX)toast("Perfect! 8 pahare. Mama e mândră de tine! 💙");
+  else toast("Așa, mami! Încă "+(WATER_MAX-n)+" pahare. 💧");
+}
+function resetWater(){setWater(0);}
+
+/* ============ BREATHING ============ */
+let breathOn=false,breathTimer;
+const phases=[{c:'in',t:'Inspiră…',d:4000},{c:'hold',t:'Ține…',d:4000},{c:'out',t:'Expiră…',d:4000}];
+function toggleBreath(){breathOn?stopBreath():startBreath();}
+function startBreath(){
+  breathOn=true;document.getElementById('breathBtn').textContent='⏸ Stop';
+  let i=0;
+  const run=()=>{
+    if(!breathOn)return;
+    const p=phases[i%phases.length];
+    const c=document.getElementById('breathCircle');
+    c.className='breath-circle '+p.c;c.textContent=p.t;
+    document.getElementById('breathHint').textContent='Urmează cercul cu respirația ta';
+    i++;breathTimer=setTimeout(run,p.d);
+  };run();
+}
+function stopBreath(){
+  breathOn=false;clearTimeout(breathTimer);
+  document.getElementById('breathBtn').textContent='▶ Start';
+  const c=document.getElementById('breathCircle');c.className='breath-circle out';c.textContent='Bravo! 🌸';
+  document.getElementById('breathHint').textContent='Te simți mai liniștit? Mama e aici.';
+}
+
+/* ============ GRATITUDE ============ */
+function getGrat(){return store.get('grat',[]);}
+function renderGrat(){
+  const list=getGrat();const el=document.getElementById('gratList');el.innerHTML='';
+  list.forEach((g,i)=>{
+    const d=document.createElement('div');d.className='grat-item';
+    d.innerHTML='🌻 <span></span><button class="x">×</button>';
+    d.querySelector('span').textContent=g;
+    d.querySelector('.x').onclick=()=>{const l=getGrat();l.splice(i,1);store.set('grat',l);renderGrat();};
+    el.appendChild(d);
+  });
+}
+function addGratitude(){
+  const inp=document.getElementById('gratInput');const v=inp.value.trim();
+  if(!v){toast("Scrie ceva mic și frumos întâi. 🌼");return;}
+  const l=getGrat();l.unshift(v);store.set('grat',l.slice(0,30));inp.value='';renderGrat();
+  toast("Ce frumos! Recunoștința e leac pentru suflet. 🌻");
+}
+
+/* ============ CHAT (rule-based mom) ============ */
+const rules=[
+  {k:['stres','stresat','anxi','panic','copleș','coplesit'],r:"Respiră adânc cu mine, comoara mea. Inspiră… expiră… Fă lucrurile pe rând, nu toate odată. Sunt aici. 🫂"},
+  {k:['dorm','somn','insomn','obosit','obosita','oboseal'],r:"Lasă telefonul deoparte, stinge lumina și respiră rar. Un ceai cald de mușețel ajută. Somn ușor, puișor. 🌙"},
+  {k:['foame','mananc','mănânc','mancare','mâncare','slab'],r:"Mănâncă ceva bun, mami: un fruct, niște nuci sau o supă caldă. Nu sări peste mese, te rog. 🍎"},
+  {k:['singur','singura','trist','plang','plâng','deprim','rau','rău'],r:"Vino în brațele mele. E ok să nu fii ok. Nu ești singur niciodată — eu sunt mereu aici pentru tine. 🤍"},
+  {k:['apa','apă','sete','hidrat'],r:"Bea un pahar cu apă chiar acum. Corpul tău are nevoie. Apasă pe paharul de mai sus. 💧"},
+  {k:['cap','doare','durere','bolnav','febr','racit','răcit'],r:"Odihnește-te și bea lichide, scumpule. Dacă te simți rău mai mult timp, mergi la doctor — promite-mi. 🩺"},
+  {k:['multumesc','mulțumesc','mersi','multam'],r:"Cu drag, mereu. Te iubesc enorm. 🤍"},
+  {k:['te iubesc','iubesc'],r:"Și eu te iubesc, mai mult decât pot spune în cuvinte. 💗"},
+  {k:['plictis','plictisit','nu am ce'],r:"Hai să faci o plimbare scurtă sau ascultă o melodie care îți place. Mișcarea schimbă starea. 🎵"},
+  {k:['sport','miscare','mișcare','antren','alerg'],r:"Bravo! Mișcarea e cel mai bun cadou pentru corpul tău. Doar nu uita să te încălzești. 🤸"},
+  {k:['bună','buna','salut','hei','bine ai','noroc'],r:"Bună, comoara mea! Ce mă bucur că ești aici. Cum te simți azi? 🌼"}
+];
+const fallback=[
+  "Sunt aici și te ascult, mami. Spune-mi mai multe. 🤍",
+  "Orice ar fi, trecem împreună peste asta. Respiră adânc. 🫂",
+  "Ai grijă de tine azi, da? Bea apă și odihnește-te. Te iubesc. 💗"
+];
+function addChat(who,text){
+  const log=document.getElementById('chatLog');
+  const d=document.createElement('div');d.className='msg '+who;d.textContent=text;
+  log.appendChild(d);log.scrollTop=log.scrollHeight;
+}
+function momReply(text){
+  const t=text.toLowerCase();
+  for(const rule of rules){ if(rule.k.some(k=>t.includes(k))) return rule.r; }
+  return fallback[Math.floor(Math.random()*fallback.length)];
+}
+function sendChat(){
+  const inp=document.getElementById('chatInput');const v=inp.value.trim();
+  if(!v)return;
+  addChat('me',v);inp.value='';
+  setTimeout(()=>addChat('mom',momReply(v)),450);
+}
+function quick(t){document.getElementById('chatInput').value=t;sendChat();}
+
+/* ============ INIT ============ */
+(function init(){
+  greet();
+  setupMoods();
+  renderWater();
+  renderGrat();
+  addChat('mom',"Bună, puișor! 🌷 Eu sunt mama — sunt aici să am grijă de tine. Cum te simți azi?");
+})();
+</script>
+</body>
+</html>
